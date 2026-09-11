@@ -23,7 +23,7 @@ responses = [
 ]
 
 markers = ["o", "s", "^"]
-fig, axes = plt.subplots(2, 3, figsize=(12, 7.8), sharex=True)
+fig, axes = plt.subplots(2, 3, figsize=(12, 7.5), sharex=True)
 axes = axes.ravel()
 
 for ax, (col, ylabel, title) in zip(axes, responses):
@@ -46,13 +46,9 @@ handles, labels = axes[0].get_legend_handles_labels()
 fig.legend(
     handles, labels,
     loc="upper center", ncol=3,
-    frameon=False, bbox_to_anchor=(0.5, 1.01)
+    frameon=False, bbox_to_anchor=(0.5, 0.995)
 )
-fig.suptitle(
-    "Coupled effects of GNP content and sintering temperature on Al–GNP responses",
-    y=1.055, fontsize=12, fontweight="bold"
-)
-fig.tight_layout(rect=[0, 0, 1, 0.96])
+fig.tight_layout(rect=[0, 0, 1, 0.94])
 
 fig.savefig(HERE / "Fig_12_Comparative_Factor_Response.png", dpi=600, bbox_inches="tight")
 fig.savefig(
