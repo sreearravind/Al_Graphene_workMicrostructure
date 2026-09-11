@@ -30,6 +30,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install pandas matplotlib pillow openpyxl tabulate scipy scikit-image seaborn imageio tifffile
           git clone --depth 1 https://github.com/pranavkokati/grainstat.git /tmp/grainstat_repo
+          sed -i 's/from skimage.feature import peak_local_maxima/from skimage.feature import peak_local_max as peak_local_maxima/' /tmp/grainstat_repo/grainstat/core/segmentation.py
 
       - name: Run multi-field grain analysis
         env:
