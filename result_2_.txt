@@ -1,0 +1,56 @@
+C:\Users\HP\PycharmProjects\Microstructure\Image_process_1.py 
+C:\Users\HP\PycharmProjects\Microstructure\grainstat\grainstat\core\morphology.py:48: FutureWarning: Parameter `min_size` is deprecated since version 0.26.0 and will be removed in 2.0.0 (or later). To avoid this warning, please use the parameter `max_size` instead. For more details, see the documentation of `remove_small_objects`. Note that the new threshold removes objects smaller than **or equal to** its value, while the previous parameter only removed smaller ones.
+  return morphology.remove_small_objects(binary_image, min_size=min_area)
+C:\Users\HP\PycharmProjects\Microstructure\grainstat\grainstat\core\properties.py:66: FutureWarning: `RegionProperties.convex_area` is deprecated starting in version 0.26 and will be removed in version 2.0. Use `RegionProperties.area_convex` instead. 
+  'convex_area_px': region.convex_area,
+C:\Users\HP\PycharmProjects\Microstructure\grainstat\grainstat\core\properties.py:67: FutureWarning: `RegionProperties.convex_area` is deprecated starting in version 0.26 and will be removed in version 2.0. Use `RegionProperties.area_convex` instead. 
+  'convex_area_um2': region.convex_area * (scale ** 2),
+C:\Users\HP\PycharmProjects\Microstructure\grainstat\grainstat\core\properties.py:114: FutureWarning: `RegionProperties.convex_image` is deprecated starting in version 0.26 and will be removed in version 2.0. Use `RegionProperties.image_convex` instead. 
+  convex_coords = region.convex_image
+C:\Users\HP\PycharmProjects\Microstructure\grainstat\grainstat\core\properties.py:77: FutureWarning: `RegionProperties.filled_area` is deprecated starting in version 0.26 and will be removed in version 2.0. Use `RegionProperties.area_filled` instead. 
+  'filled_area_px': region.filled_area,
+C:\Users\HP\PycharmProjects\Microstructure\grainstat\grainstat\core\properties.py:78: FutureWarning: `RegionProperties.filled_area` is deprecated starting in version 0.26 and will be removed in version 2.0. Use `RegionProperties.area_filled` instead. 
+  'filled_area_um2': region.filled_area * (scale ** 2),
+C:\Users\HP\PycharmProjects\Microstructure\grainstat\grainstat\core\properties.py:79: FutureWarning: `RegionProperties.equivalent_diameter` is deprecated starting in version 0.26 and will be removed in version 2.0. Use `RegionProperties.equivalent_diameter_area` instead. 
+  'equivalent_diameter_px': region.equivalent_diameter,
+C:\Users\HP\PycharmProjects\Microstructure\grainstat\grainstat\core\properties.py:80: FutureWarning: `RegionProperties.equivalent_diameter` is deprecated starting in version 0.26 and will be removed in version 2.0. Use `RegionProperties.equivalent_diameter_area` instead. 
+  'equivalent_diameter_um': region.equivalent_diameter * scale,
+     area_px  area_um2  ...  roundness  solidity
+1   117027.0   4681.08  ...   0.069910  0.729131
+2    63353.0   2534.12  ...   0.103102  0.785618
+3    55303.0   2212.12  ...   0.087358  0.725895
+4    15832.0    633.28  ...   0.326958  0.844148
+5       24.0      0.96  ...   0.645144  0.857143
+6    10787.0    431.48  ...   0.222676  0.841288
+7    17036.0    681.44  ...   0.175438  0.786846
+8    19879.0    795.16  ...   0.179793  0.785390
+9    41278.0   1651.12  ...   0.068819  0.686925
+10   11584.0    463.36  ...   0.393400  0.848272
+11    4890.0    195.60  ...   0.440969  0.891848
+12    9405.0    376.20  ...   0.296051  0.828051
+13   10823.0    432.92  ...   0.172446  0.684653
+14   27041.0   1081.64  ...   0.095138  0.636963
+15    7370.0    294.80  ...   0.339077  0.860579
+16   15228.0    609.12  ...   0.169202  0.749963
+17   35141.0   1405.64  ...   0.090091  0.595106
+18   18830.0    753.20  ...   0.102430  0.706673
+19   48445.0   1937.80  ...   0.050145  0.709318
+20    5274.0    210.96  ...   0.422777  0.832255
+21   10008.0    400.32  ...   0.373437  0.786607
+
+[21 rows x 8 columns]
+
+Number of detected regions: 21
+
+Equivalent diameter stats:
+count    21.000000
+mean     32.324695
+std      17.016913
+min       1.105581
+25%      22.576609
+50%      28.395724
+75%      42.305040
+max      77.201918
+Name: equivalent_diameter_um, dtype: float64
+
+Process finished with exit code 0

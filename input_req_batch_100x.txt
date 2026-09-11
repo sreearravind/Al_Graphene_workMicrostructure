@@ -1,0 +1,19 @@
+
+Batch processing of images for analysis. 
+
+Choose exisiting 
+
+    scale=0.473,
+    min_area=500
+
+
+Inside 100 x magnification folder 12 folders are there (1-12) samples. 
+
+"C:\Users\HP\PycharmProjects\Microstructure\Optical microstructure\100 x"
+
+
+output directory 
+
+"C:\Users\HP\PycharmProjects\Microstructure\Caluculaions\100x_report"
+
+excel file contains all publishable results for the manuscript.
