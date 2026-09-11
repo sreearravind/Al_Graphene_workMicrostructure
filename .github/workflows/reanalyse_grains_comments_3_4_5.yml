@@ -33,6 +33,7 @@ jobs:
           sed -i 's/from skimage.feature import peak_local_maxima/from skimage.feature import peak_local_max as peak_local_maxima/' /tmp/grainstat_repo/grainstat/core/segmentation.py
           sed -i '/from \.interactive import InteractivePlotter/d' /tmp/grainstat_repo/grainstat/visualization/__init__.py
           sed -i "s/__all__ = \['PlotGenerator', 'InteractivePlotter'\]/__all__ = ['PlotGenerator']/" /tmp/grainstat_repo/grainstat/visualization/__init__.py
+          sed -i 's/labels=samples/tick_labels=samples/' Revision_Comments_3_4_5/reanalyse_grain_microstructure.py
 
       - name: Run multi-field grain analysis
         env:
