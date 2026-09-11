@@ -1,0 +1,36 @@
+name: Make combined grain revision figure
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'Revision_Comments_3_4_5/make_combined_grain_figure.py'
+      - '.github/workflows/make_combined_grain_figure.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-figure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install pandas matplotlib numpy pillow
+      - name: Generate combined figure
+        run: python Revision_Comments_3_4_5/make_combined_grain_figure.py
+      - name: Commit figure
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Revision_Comments_3_4_5/output/Figure_Grain_Distributions_and_Mechanical_Correlations.*
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "Add combined grain distribution and correlation figure"
+            git push
+          fi
