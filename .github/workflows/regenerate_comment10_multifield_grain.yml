@@ -1,0 +1,39 @@
+name: Regenerate Figure 12 with multi-field grain data
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'Revision_Comment10/comment10_factor_comparison_data.csv'
+      - 'Revision_Comment10/figure_comment10_comparative.py'
+      - '.github/workflows/regenerate_comment10_multifield_grain.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install pandas matplotlib pillow
+      - name: Regenerate comparative figure
+        env:
+          MPLBACKEND: Agg
+        run: python Revision_Comment10/figure_comment10_comparative.py
+      - name: Commit revised Figure 12
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Revision_Comment10/Fig_12_Comparative_Factor_Response.png Revision_Comment10/Fig_12_Comparative_Factor_Response.tiff Revision_Comment10/Fig_12_Comparative_Factor_Response.svg
+          if git diff --cached --quiet; then
+            echo "No generated changes to commit."
+          else
+            git commit -m "Regenerate Figure 12 using multi-field grain-size values"
+            git push
+          fi
