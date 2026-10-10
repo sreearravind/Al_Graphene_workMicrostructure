@@ -86,6 +86,27 @@ def run():
                     'TIFF':str(q.relative_to(ROOT)) if core else '',
                     'TIFF_dimensions':tdims,'TIFF_metadata':json.dumps(tmeta),
                     'TIFF_RGB_SHA256':th,'Status':status})
+    # Cross-label matching: detect when a TIFF is precisely an ORIGINAL BMP
+    # belonging to a different specimen directory, rather than changed pixels.
+    bmp_by_hash={x['BMP_RGB_SHA256']:x for x in rows}
+    cross_matches=[]
+    for row in rows:
+        if row['Classification']!='core' or row['Status']!='RGB PIXEL DIFFERENT':
+            continue
+        match=bmp_by_hash.get(row['TIFF_RGB_SHA256'])
+        if match is not None:
+            cross_matches.append({
+              'TIFF_assigned_sample':row['Sample'],
+              'TIFF_path':row['TIFF'],
+              'Original_BMP_label':match['Sample'],
+              'Original_BMP_path':match['BMP'],
+              'Magnification':row['Magnification'],
+              'Field':row['Field'],
+              'Pixel_sha256':row['TIFF_RGB_SHA256']})
+    if cross_matches:
+        with (OUT/'cross_label_matches.csv').open('w',newline='',encoding='utf-8') as f:
+            w=csv.DictWriter(f,fieldnames=list(cross_matches[0].keys()))
+            w.writeheader();w.writerows(cross_matches)
     unmapped=[str(p.relative_to(ROOT)) for p in SRC.rglob('*.bmp') if p.resolve() not in seen]
     dup=[v for v in hashes.values() if len(v)>1]
     for mag in (100,400):make_sheet(mag)
@@ -103,6 +124,13 @@ def run():
       '|---|---:|---:|---:|---:|---:|']
     for num,gnp,temp,_ in C:
         report.append(f'| S{num} | {gnp} | {temp} | {group[num][100]} | {group[num][200]} | {group[num][400]} |')
+    report += ['', '## Cross-label TIFF-to-BMP identity findings','']
+    pairs=Counter((m['TIFF_assigned_sample'],m['Original_BMP_label']) for m in cross_matches)
+    for (assigned,original),count in sorted(pairs.items()):
+        report.append(f'- TIFF folder **{assigned}** matches BMP source folder **{original}** at {count} exact decoded-pixel-identical field(s).')
+    if cross_matches:
+        report.append('**Critical:** This is a sample-label provenance discrepancy, NOT evidence that either historical TIFF labels or recent BMP folder labels are correct. Confirm with acquisition notebooks / original specimen log before reassigning any numerical grain results.')
+        report.append('The prior grain-analysis TIFF-derived results for any affected sample are NOT validated against newly supplied BMP specimen identifiers.')
     report += ['','## Calibration and scientific interpretation',
       '',
       '- Previous grain analysis HARD-CODES **0.473 µm/pixel** for 100x images. This is an unverified calibration assumption in the absence of microscope-stage/calibration records.',
@@ -121,6 +149,6 @@ def run():
       'Inspect contact sheets and representative original frames; authenticate 100x calibration before any µm-based grain-size reanalysis. Then perform manually checked segmentation overlays on anomalous fields (S2, S3, S6, S9).',
       '']
     (OUT/'TASK1_REPORT.md').write_text('\n'.join(report),encoding='utf-8')
-    (OUT/'summary.json').write_text(json.dumps({'counts':dict(counts),'identical_BMP_groups':dup,'unmapped_BMP':unmapped,'core_mismatches':mism},indent=2),encoding='utf-8')
+    (OUT/'summary.json').write_text(json.dumps({'counts':dict(counts),'identical_BMP_groups':dup,'unmapped_BMP':unmapped,'core_mismatches':mism,'cross_label_matches':cross_matches},indent=2),encoding='utf-8')
     print('TASK 1 RESULT',dict(counts),'DUP_GROUPS',len(dup),'UNMAPPED',len(unmapped))
 if __name__=='__main__':run()
