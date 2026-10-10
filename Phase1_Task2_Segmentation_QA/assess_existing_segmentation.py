@@ -58,6 +58,10 @@ def overlay_sheet():
         d.text((8,yy+h+7),f'Working S{n} original BMP (100x, field 1)',fill='black')
         d.text((w+8,yy+h+7),f'Historical TIFF S{old} stored overlay',fill='black')
     canvas.save(OUT/'overlay_review_first_fields.jpg',quality=87,optimize=True)
+    # Smaller 4-condition groups are accessible for visual review.
+    for j in range(2):
+        section=canvas.crop((0,j*4*(h+pad),2*w,(j+1)*4*(h+pad)))
+        section.save(OUT/f'overlay_review_group_{j+1}.jpg',quality=72,optimize=True)
 
 def main():
     OUT.mkdir(parents=True,exist_ok=True)
@@ -107,7 +111,7 @@ def main():
         counts=sub.Grain_Count;means=sub.Mean_ECD_um
         cv=100*means.std(ddof=1)/means.mean()
         ratio=counts.max()/counts.min()
-        high=ratio>=4 or (sub.Heuristic_Flags.fillna('')!='').sum()>=2
+        high=ratio>=4 or (counts.min()<30 and cv>25)
         srows.append({
           'Working_Sample':f'S{n}','Working_Num':n,
           'Historical_TIFF_Sample':sub.Historical_TIFF_Sample.iloc[0],
@@ -148,7 +152,7 @@ def main():
       '- per_field_morphology_QA.csv (includes cross-label traceability and morphology flag metrics)',
       '- sample_level_segmentation_QA.csv (condition-level screening)',
       '- anomalous_100x_fields.jpg (source-image context)',
-      '- overlay_review_first_fields.jpg (source BMP vs existing first-field overlay)',
+      '- overlay_review_group_1.jpg / overlay_review_group_2.jpg (source BMP vs first-field saved overlay; accessible review groups)',
       '',
       '**Next before publication:** Visual classification of actual grain boundaries and quantitative manual-vs-automatic agreement on selected source fields; assess segmentation thresholds and retain full audit trail.']
     (OUT/'TASK2_QA_SCREENING.md').write_text('\n'.join(lines),encoding='utf-8')
