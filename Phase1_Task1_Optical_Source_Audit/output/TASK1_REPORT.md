@@ -1,6 +1,6 @@
 # Phase 1 — Task 1: optical source-image validation
 
-Generated: 2026-10-10T10:53:15.779361+00:00
+Generated: 2026-10-10T10:55:28.855937+00:00
 
 ## Inventory and RGB image-equivalence checks
 
@@ -29,6 +29,14 @@ Generated: 2026-10-10T10:53:15.779361+00:00
 | S10 | 4 | 500 | 3 | 3 | 3 |
 | S11 | 4 | 550 | 3 | 3 | 3 |
 | S12 | 4 | 600 | 5 | 4 | 5 |
+
+## Cross-label TIFF-to-BMP identity findings
+
+- TIFF folder **S10** matches BMP source folder **S12** at 9 exact decoded-pixel-identical field(s).
+- TIFF folder **S11** matches BMP source folder **S10** at 9 exact decoded-pixel-identical field(s).
+- TIFF folder **S12** matches BMP source folder **S11** at 9 exact decoded-pixel-identical field(s).
+**Critical:** This is a sample-label provenance discrepancy, NOT evidence that either historical TIFF labels or recent BMP folder labels are correct. Confirm with acquisition notebooks / original specimen log before reassigning any numerical grain results.
+The prior grain-analysis TIFF-derived results for any affected sample are NOT validated against newly supplied BMP specimen identifiers.
 
 ## Calibration and scientific interpretation
 
