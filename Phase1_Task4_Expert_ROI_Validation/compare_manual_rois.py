@@ -1,0 +1,271 @@
+#!/usr/bin/env python3
+"""Phase 1 Task 4: compare REAL ImageJ manually traced polygons with GrainStat.
+
+Requires actual human-created ROI files named S02_F1.zip etc. Absence of ROI
+files returns PENDING rather than generating artificial ground truth.
+"""
+from __future__ import annotations
+
+import argparse
+import csv
+import math
+import re
+import tempfile
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+from PIL import Image, ImageDraw, ImageOps
+from roifile import ImagejRoi, ROI_TYPE, roiread, roiwrite
+from skimage.draw import polygon
+from skimage.segmentation import find_boundaries
+from grainstat import GrainAnalyzer
+
+ROOT = Path(__file__).resolve().parents[1]
+HERE = Path(__file__).resolve().parent
+OUT = HERE / "output"
+ROI_DIR = HERE / "manual_rois"
+PICKS = ROOT / "Phase1_Task2_Segmentation_QA" / "MANUAL_VALIDATION_TEMPLATE.csv"
+TIFF = ROOT / "Optical microstructure" / "100 x"
+SCALE = 0.473
+MIN_AREA = 500
+OLD_TO_WORK = {**{i: i for i in range(1, 10)}, 10: 12, 11: 10, 12: 11}
+WORK_TO_OLD = {v: k for k, v in OLD_TO_WORK.items()}
+FILE_PATTERN = re.compile(r"^S(0[1-9]|1[0-2])_F([1-6])\.zip$", re.IGNORECASE)
+ALLOWED_ROIS = {ROI_TYPE.POLYGON, ROI_TYPE.FREEHAND, ROI_TYPE.TRACED}
+H, W = 1200, 1600
+
+
+def mask_from_points(xy, shape=(H, W)):
+    """Draw a closed, manually traced ImageJ (x,y) polygon."""
+    points = np.asarray(xy, dtype=float)
+    if points.ndim != 2 or points.shape[1] != 2 or len(points) < 3:
+        raise ValueError("ROI has fewer than 3 polygon vertices")
+    if not np.all(np.isfinite(points)):
+        raise ValueError("ROI contains nonfinite coordinates")
+    if (points[:, 0].min() < 0 or points[:, 0].max() >= shape[1]
+            or points[:, 1].min() < 0 or points[:, 1].max() >= shape[0]):
+        raise ValueError("ROI exceeds original image bounds: do not clip")
+    rr, cc = polygon(points[:, 1], points[:, 0], shape)
+    m = np.zeros(shape, bool)
+    m[rr, cc] = True
+    if m.sum() < 3:
+        raise ValueError("Degenerate ROI polygon")
+    return m
+
+
+def match_one(manual, labels, allowed):
+    """One manual polygon vs best-overlap automated segmented object."""
+    area = int(manual.sum())
+    observed = np.bincount(labels[manual].astype("int64"))
+    candidate = [int(k) for k in np.flatnonzero(observed)
+                 if k != 0 and k in allowed and observed[k] > 0]
+    if not candidate:
+        return {"Matched_Auto_Label": "", "Intersection_px": 0,
+                "Auto_Area_px": "", "IoU": 0.0, "Dice": 0.0,
+                "Auto_ECD_um": float("nan")}
+    best = None
+    for k in candidate:
+        marea = int(allowed[k])
+        inter = int(observed[k])
+        union = area + marea - inter
+        iou = inter / union if union else 0.0
+        if best is None or iou > best["IoU"]:
+            best = {"Matched_Auto_Label": k, "Intersection_px": inter,
+                    "Auto_Area_px": marea, "IoU": iou,
+                    "Dice": (2 * inter / (area + marea)),
+                    "Auto_ECD_um": SCALE * math.sqrt(4 * marea / math.pi)}
+    return best
+
+
+def sector(x, y):
+    """Twelve non-overlapping 400 x 400 original-image review sectors."""
+    col = min(int(x) // 400, 3)
+    row = min(int(y) // 400, 2)
+    return f"R{row+1}C{col+1}"
+
+
+def read_manually_drawn_regions(zippath):
+    rois = roiread(zippath)
+    if not isinstance(rois, list):
+        rois = [rois]
+    if not rois:
+        raise ValueError("No actual human-traced ImageJ ROIs in archive")
+    result = []
+    occupied = np.zeros((H, W), dtype=bool)
+    for i, roi in enumerate(rois, 1):
+        if roi.roitype not in ALLOWED_ROIS:
+            raise ValueError(f"ROI {i} is not polygon/freehand/traced: {roi.roitype}")
+        coords = np.asarray(roi.coordinates(), dtype=float)
+        mask = mask_from_points(coords)
+        overlap = int(np.count_nonzero(mask & occupied))
+        if overlap:
+            raise ValueError(f"ROI {i} overlaps an earlier manual ROI by {overlap} pixels")
+        occupied |= mask
+        centroid = np.mean(np.argwhere(mask), axis=0)
+        result.append((i, roi.name or f"ROI_{i:03d}", mask,
+                       float(centroid[1]), float(centroid[0])))
+    return result
+
+
+def compare_field(pick, roi_zip):
+    working = int(str(pick["Working_sample"])[1:])
+    field = int(pick["Field"])
+    old = WORK_TO_OLD[working]
+    tif = TIFF / str(old) / f"100x{field}.tiff"
+    bmp = ROOT / str(pick["BMP_path"])
+    if not bmp.exists() or not tif.exists():
+        raise FileNotFoundError(f"Input source unavailable for S{working} F{field}")
+    from hashlib import sha256
+    with Image.open(tif) as im:
+        a = sha256(im.convert("RGB").tobytes()).hexdigest()
+    with Image.open(bmp) as im:
+        b = sha256(im.convert("RGB").tobytes()).hexdigest()
+    if a != b:
+        raise ValueError(f"Pixel mismatched BMP vs TIFF for S{working} F{field}")
+    ga = GrainAnalyzer()
+    result = ga.analyze(str(tif), scale=SCALE, min_area=MIN_AREA)
+    metrics = result["metrics"]
+    allowed = {int(k): int(v["area_px"]) for k, v in metrics.items()
+               if int(v["area_px"]) >= MIN_AREA}
+    labels = ga.labeled_image
+    manual = read_manually_drawn_regions(roi_zip)
+    records = []
+    masks = []
+    for seq, name, mask, x, y in manual:
+        found = match_one(mask, labels, allowed)
+        records.append(dict(
+            Working_Sample=f"S{working:02d}", Field=field,
+            Manual_ROI_Name=name, Manual_ROI_Sequence=seq,
+            Original_BMP=str(pick["BMP_path"]),
+            Historical_TIFF_Sample=f"S{old:02d}",
+            Manual_Area_px=int(mask.sum()),
+            Manual_ECD_um=SCALE * math.sqrt(4 * mask.sum() / math.pi),
+            Sector=sector(x, y), Manual_Centroid_x=x, Manual_Centroid_y=y,
+            Below_500px_Filter=int(mask.sum()) < MIN_AREA,
+            **found))
+        masks.append(mask)
+    prepare_overlay(bmp, labels, allowed, masks, f"S{working:02d}_F{field}")
+    return records
+
+
+def prepare_overlay(bmp, labels, allowed, manual_masks, stem):
+    """Source / computed contours / real human polygons. This last panel
+    is only produced if nonempty ImageJ ROI files actually exist.
+    """
+    with Image.open(bmp) as im:
+        rgb = np.asarray(im.convert("RGB")).copy()
+    valid = np.isin(labels, list(allowed))
+    compact = labels.copy()
+    compact[~valid] = 0
+    auto_edge = find_boundaries(compact, mode="inner")
+    auto = rgb.copy()
+    auto[auto_edge] = (255, 20, 20)
+    human = rgb.copy()
+    for mask in manual_masks:
+        edge = find_boundaries(mask, mode="inner")
+        human[edge] = (0, 255, 0)
+    size = (500, 375)
+    out = Image.new("RGB", (1500, 410), "white")
+    pen = ImageDraw.Draw(out)
+    for i, (arr, label) in enumerate([
+        (rgb, "Original BMP"), (auto, "Automated red contours"),
+        (human, "REAL ImageJ manual green outlines")]):
+        im = ImageOps.contain(Image.fromarray(arr), size, Image.Resampling.LANCZOS)
+        out.paste(im, (500 * i + (500 - im.width)//2, 0))
+        pen.text((500*i+10, 384), label, fill="black")
+    out.save(OUT / f"{stem}_manual_vs_auto.jpg", quality=84, optimize=True)
+
+
+def self_test():
+    """Synthetic in-memory software test; never a scientific manual ROI."""
+    labels = np.zeros((100, 100), dtype=np.int32)
+    labels[20:60, 30:70] = 7
+    roi_mask = np.zeros((100, 100), dtype=bool)
+    roi_mask[20:60, 30:70] = True
+    result = match_one(roi_mask, labels, {7: 1600})
+    assert result["Matched_Auto_Label"] == 7 and result["IoU"] == 1.0
+    assert abs(result["Dice"] - 1) < 1e-10
+    # Ensure ImageJ ROI ZIP parser round-trips true coordinate archives.
+    roi = ImagejRoi.frompoints([[30, 20], [70, 20], [70, 60], [30, 60]])
+    roi.roitype = ROI_TYPE.POLYGON
+    roi.name = "SOFTWARE_TEST_ONLY"
+    with tempfile.TemporaryDirectory() as tmp:
+        p = Path(tmp) / "synthetic_software_unit_test.zip"
+        roiwrite(p, [roi])
+        actual = roiread(p)
+        assert len(actual) == 1
+        assert len(actual[0].coordinates()) == 4
+    print("SOFTWARE TEST PASS: pixel overlap arithmetic and ZIP polygon read")
+    print("IMPORTANT: artificial software fixture created only in a temporary directory; no scientific human tracing performed")
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--self-test", action="store_true")
+    args = parser.parse_args()
+    if args.self_test:
+        self_test()
+        return
+    OUT.mkdir(parents=True, exist_ok=True)
+    ROI_DIR.mkdir(parents=True, exist_ok=True)
+    manifest = pd.read_csv(PICKS)
+    known = {(int(str(x.Working_sample)[1:]), int(x.Field)): x.to_dict()
+             for x in manifest.itertuples(index=False)}
+    all_files = sorted(ROI_DIR.glob("*.zip"))
+    reports = []
+    if not all_files:
+        (OUT / "MANUAL_VALIDATION_STATUS.md").write_text(
+            "# Task 4: expert manual ROI comparison\n\n"
+            "**Status: PENDING HUMAN ROI SUBMISSION.**\n\n"
+            "No ImageJ ROI ZIP archives are present. No human-vs-automated "
+            "agreement, false-boundary rate or validated grain-size distribution "
+            "can honestly be computed. Use the original 100x BMP images and "
+            "the ImageJ collection macro to trace a documented expert ROI sample.\n",
+            encoding="utf-8")
+        print("PENDING: no expert ROI archives; wrote status only")
+        return
+    for p in all_files:
+        match = FILE_PATTERN.match(p.name)
+        if not match:
+            raise ValueError(f"Unrecognized ROI ZIP: {p.name}. Use S02_F1.zip")
+        key = int(match.group(1)), int(match.group(2))
+        if key not in known:
+            raise ValueError(f"ROI file {p.name} not in preselected 19-field register")
+        reports += compare_field(known[key], p)
+    df = pd.DataFrame(reports)
+    df.to_csv(OUT / "manual_vs_auto_per_roi.csv", index=False)
+    per_field = []
+    for (s, f), sub in df.groupby(["Working_Sample", "Field"]):
+        sectors = sub.Sector.nunique()
+        per_field.append({
+            "Working_Sample": s, "Field": f,
+            "Manual_ROI_Count": len(sub),
+            "Image_Sectors_Covered_of_12": sectors,
+            "Median_IoU": sub.IoU.median(),
+            "Mean_Dice": sub.Dice.mean(),
+            "Fraction_IoU_gte_050": (sub.IoU >= .5).mean(),
+            "Fraction_IoU_gte_070": (sub.IoU >= .7).mean(),
+            "Manual_Mean_ECD_um": sub.Manual_ECD_um.mean(),
+            "Auto_Matched_Mean_ECD_um": sub.Auto_ECD_um.mean(),
+            "Field_Review_Status": "EXPERT_SIGNOFF_PENDING"
+        })
+    pd.DataFrame(per_field).to_csv(OUT / "manual_vs_auto_per_field.csv", index=False)
+    text = [
+        "# Phase 1 Task 4 — Independent manual versus automated optical segmentation",
+        "", f"Manual ROI archives submitted: **{len(all_files)}**.",
+        f"Total independently drawn ROI polygons: **{len(df)}**.",
+        "", "These are agreement metrics for the explicitly traced objects only.",
+        "No assertion of representative metallographic grain-size distribution "
+        "or mechanism is made until expert field selection and boundary identity are signed off.",
+        "", "The sources of human ROI data are the uploaded ROI ZIP archives, not programmatic simulations.",
+        "Human contours were compared to rerun historical GrainStat objects on matching TIFFs, "
+        "with exact BMP pixel identities and the fixed S10–S12 label crosswalk.",
+        "", "Expert signoff remains pending. Numerical agreement alone does not determine physical grain identity.",
+        "", "See manual_vs_auto_per_roi.csv, manual_vs_auto_per_field.csv and generated three-panel images."
+    ]
+    (OUT / "MANUAL_VALIDATION_STATUS.md").write_text("\n".join(text)+"\n", encoding="utf-8")
+
+
+if __name__ == "__main__":
+    main()
