@@ -318,14 +318,25 @@ def main():
     manifest = pd.read_csv(PICKS)
     known = {(int(str(x.Working_sample)[1:]), int(x.Field)): x.to_dict()
              for _, x in manifest.iterrows()}
-    all_files = sorted(ROI_DIR.glob("*.zip"))
+    # Match active ImageJ archives case-insensitively. Keep explicitly
+    # named _backup.zip originals for provenance, NEVER as active ground truth.
+    discovered = sorted(p for p in ROI_DIR.iterdir() if p.is_file()
+                        and p.suffix.lower() == ".zip")
+    backups = [p for p in discovered if p.name.lower().endswith("_backup.zip")]
+    all_files = [p for p in discovered if not p.name.lower().endswith("_backup.zip")]
+    # Never silently pick two differently cased files for the same specimen.
+    active_keys = [p.name.lower() for p in all_files]
+    if len(active_keys) != len(set(active_keys)):
+        raise ValueError("Two active archives differ only by filename case; resolve duplicates")
+    print(f"ROI discovery: {len(all_files)} active and {len(backups)} preserved backup(s)",
+          flush=True)
     reports = []
     diagnostics = []
     if not all_files:
         (OUT / "MANUAL_VALIDATION_STATUS.md").write_text(
             "# Task 4: expert manual ROI comparison\n\n"
             "**Status: PENDING HUMAN ROI SUBMISSION.**\n\n"
-            "No ImageJ ROI ZIP archives are present. No human-vs-automated "
+            "No active ImageJ ROI ZIP archives are present (preserved backups are not evidence of a revised validation). No human-vs-automated "
             "agreement, false-boundary rate or validated grain-size distribution "
             "can honestly be computed. Use the original 100x BMP images and "
             "the ImageJ collection macro to trace a documented expert ROI sample.\n",
@@ -397,7 +408,8 @@ def main():
     pd.DataFrame(per_field).to_csv(OUT / "manual_vs_auto_per_field.csv", index=False)
     text = [
         "# Phase 1 Task 4 — Independent manual versus automated optical segmentation",
-        "", f"Manual ROI archives submitted: **{len(all_files)}**.",
+        "", f"Active manual ROI archives submitted: **{len(all_files)}**.",
+        f"Preserved historical backup ROI archives ignored: **{len(backups)}**.",
         f"Total independently drawn ROI polygons: **{len(df)}**.",
         "", "These are agreement metrics for the explicitly traced objects only.",
         "No assertion of representative metallographic grain-size distribution "
