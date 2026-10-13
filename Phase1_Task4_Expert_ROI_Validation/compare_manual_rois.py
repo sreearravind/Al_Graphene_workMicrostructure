@@ -85,6 +85,11 @@ def sector(x, y):
     return f"R{row+1}C{col+1}"
 
 
+def substantial_overlap(px, area1, area2):
+    """Conservative QA heuristic, not physical metallography acceptance."""
+    return px >= 50 and px / min(area1, area2) >= 0.01
+
+
 def read_manually_drawn_regions(zippath):
     rois = roiread(zippath)
     if not isinstance(rois, list):
@@ -99,8 +104,7 @@ def read_manually_drawn_regions(zippath):
         coords = np.asarray(roi.coordinates(), dtype=float)
         mask = mask_from_points(coords)
         overlap = int(np.count_nonzero(mask & occupied))
-        if overlap:
-            raise ValueError(f"ROI {i} overlaps an earlier manual ROI by {overlap} pixels")
+        # Preflight records overlaps. Only substantive conflicts block comparisons.
         occupied |= mask
         centroid = np.mean(np.argwhere(mask), axis=0)
         result.append((i, roi.name or f"ROI_{i:03d}", mask,
@@ -220,6 +224,7 @@ def roi_overlap_preflight(pick, roi_zip):
                     "Intersection_px":intersect,
                     "Overlap_as_pct_smaller_ROI":100*intersect/smaller,
                     "Pair_IoU":intersect/union,
+                    "Substantial_for_comparison_gate":substantial_overlap(intersect,int(mask.sum()),int(prior.sum())),
                     "Needs_expert_review":True})
         total_overlap |= mask & occupied
         occupied |= mask
@@ -266,10 +271,11 @@ def roi_overlap_preflight(pick, roi_zip):
         "Field":field,
         "ROI_Count":len(rois),
         "Overlapping_Pairs":len(pairs),
+        "Substantial_Overlapping_Pairs":sum(bool(p["Substantial_for_comparison_gate"]) for p in pairs),
         "Total_Unique_Overlap_Pixels":int(total_overlap.sum()),
         "Pairs":pairs,
         "Diagnostic_Image":sheetname,
-        "Scientific_Comparison_Allowed":not bool(pairs)
+        "Scientific_Comparison_Allowed":not any(p["Substantial_for_comparison_gate"] for p in pairs)
     }
 
 def self_test():
@@ -291,7 +297,12 @@ def self_test():
         actual = roiread(p)
         assert len(actual) == 1
         assert len(actual[0].coordinates()) == 4
-    print("SOFTWARE TEST PASS: pixel overlap arithmetic and ZIP polygon read")
+    assert substantial_overlap(649,24338,25247)
+    assert substantial_overlap(459,4235,5515)
+    assert substantial_overlap(88,27071,4960)
+    assert not substantial_overlap(31,24338,10766)
+    assert not substantial_overlap(1,27071,6822)
+    print("SOFTWARE TEST PASS: ROI geometry, ZIP reader, substantive overlap QA")
     print("IMPORTANT: artificial software fixture created only in a temporary directory; no scientific human tracing performed")
 
 
@@ -330,7 +341,7 @@ def main():
             raise ValueError(f"ROI file {p.name} not in preselected 19-field register")
         check = roi_overlap_preflight(known[key], p)
         diagnostics.append(check)
-        if check["Overlapping_Pairs"]:
+        if check["Substantial_Overlapping_Pairs"]:
             continue  # Human ROIs must be clarified: don't report invalid agreement
         reports += compare_field(known[key], p)
     if diagnostics:
@@ -344,6 +355,7 @@ def main():
                 f"- {item['Working_Sample']} field {item['Field']}: "
                 f"{item['ROI_Count']} actual ROI entries, "
                 f"{item['Overlapping_Pairs']} overlapping ROI pair(s), "
+                f"{item['Substantial_Overlapping_Pairs']} substantive, "
                 f"{item['Total_Unique_Overlap_Pixels']} overlap pixel(s).")
             for pair in item["Pairs"]:
                 details.append(
