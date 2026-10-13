@@ -2,68 +2,12 @@
   {
     "Working_Sample": "S06",
     "Field": 1,
-    "ROI_Count": 24,
-    "Overlapping_Pairs": 5,
-    "Substantial_Overlapping_Pairs": 3,
-    "Total_Unique_Overlap_Pixels": 1228,
-    "Pairs": [
-      {
-        "Working_Sample": "S06",
-        "Field": 1,
-        "Manual_ROI_A": 1,
-        "Manual_ROI_B": 3,
-        "Intersection_px": 649,
-        "Overlap_as_pct_smaller_ROI": 2.666611882652642,
-        "Pair_IoU": 0.013262220042504496,
-        "Substantial_for_comparison_gate": true,
-        "Needs_expert_review": true
-      },
-      {
-        "Working_Sample": "S06",
-        "Field": 1,
-        "Manual_ROI_A": 1,
-        "Manual_ROI_B": 10,
-        "Intersection_px": 31,
-        "Overlap_as_pct_smaller_ROI": 0.28794352591491734,
-        "Pair_IoU": 0.0008838707837938015,
-        "Substantial_for_comparison_gate": false,
-        "Needs_expert_review": true
-      },
-      {
-        "Working_Sample": "S06",
-        "Field": 1,
-        "Manual_ROI_A": 2,
-        "Manual_ROI_B": 18,
-        "Intersection_px": 1,
-        "Overlap_as_pct_smaller_ROI": 0.01465845793022574,
-        "Pair_IoU": 2.9505488020771865e-05,
-        "Substantial_for_comparison_gate": false,
-        "Needs_expert_review": true
-      },
-      {
-        "Working_Sample": "S06",
-        "Field": 1,
-        "Manual_ROI_A": 2,
-        "Manual_ROI_B": 19,
-        "Intersection_px": 88,
-        "Overlap_as_pct_smaller_ROI": 1.7741935483870968,
-        "Pair_IoU": 0.0027549071784115455,
-        "Substantial_for_comparison_gate": true,
-        "Needs_expert_review": true
-      },
-      {
-        "Working_Sample": "S06",
-        "Field": 1,
-        "Manual_ROI_A": 17,
-        "Manual_ROI_B": 24,
-        "Intersection_px": 459,
-        "Overlap_as_pct_smaller_ROI": 10.838252656434475,
-        "Pair_IoU": 0.04940264772360349,
-        "Substantial_for_comparison_gate": true,
-        "Needs_expert_review": true
-      }
-    ],
+    "ROI_Count": 9,
+    "Overlapping_Pairs": 0,
+    "Substantial_Overlapping_Pairs": 0,
+    "Total_Unique_Overlap_Pixels": 0,
+    "Pairs": [],
     "Diagnostic_Image": "S06_F1_manual_ROI_overlap_diagnostic.jpg",
-    "Scientific_Comparison_Allowed": false
+    "Scientific_Comparison_Allowed": true
   }
 ]

@@ -1,0 +1,2 @@
+Working_Sample,Field,Manual_ROI_Count,Image_Sectors_Covered_of_12,Median_IoU,Mean_Dice,Fraction_IoU_gte_050,Fraction_IoU_gte_070,Manual_Mean_ECD_um,Auto_Matched_Mean_ECD_um,Field_Review_Status
+S06,1,9,6,0.5479562386737364,0.6920053891582224,0.6666666666666666,0.2222222222222222,38.728121865135506,39.606635022827035,EXPERT_SIGNOFF_PENDING
