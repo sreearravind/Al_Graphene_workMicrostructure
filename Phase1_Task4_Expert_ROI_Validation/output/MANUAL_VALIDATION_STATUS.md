@@ -2,7 +2,9 @@
 
 Active manual ROI archives submitted: **3**.
 Preserved historical backup ROI archives ignored: **1**.
-Total independently drawn ROI polygons: **9**.
+Total submitted expert polygon ROIs across all active archives: **40**.
+Human polygon ROIs included in agreement calculations (eligible fields only): **9**.
+Human polygon ROIs held out pending review: **31**.
 
 These are agreement metrics for the explicitly traced objects only.
 No assertion of representative metallographic grain-size distribution or mechanism is made until expert field selection and boundary identity are signed off.
