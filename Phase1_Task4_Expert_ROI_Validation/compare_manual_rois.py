@@ -261,11 +261,16 @@ def roi_overlap_preflight(pick, roi_zip):
         writer=csv.DictWriter(f,fieldnames=list(rows[0]))
         writer.writeheader()
         writer.writerows(rows)
+    overlap_file = OUT / f"S{working:02d}_F{field}_overlap_pairs.csv"
     if pairs:
-        with (OUT/f"S{working:02d}_F{field}_overlap_pairs.csv").open("w",newline="",encoding="utf-8") as f:
+        with overlap_file.open("w", newline="", encoding="utf-8") as f:
             writer=csv.DictWriter(f,fieldnames=list(pairs[0]))
             writer.writeheader()
             writer.writerows(pairs)
+    else:
+        # The old ROI submission may leave outdated overlap data.
+        # Remove derived stale output ONLY; keep source and backups untouched.
+        overlap_file.unlink(missing_ok=True)
     return {
         "Working_Sample":f"S{working:02d}",
         "Field":field,
@@ -406,6 +411,27 @@ def main():
             "Field_Review_Status": "EXPERT_SIGNOFF_PENDING"
         })
     pd.DataFrame(per_field).to_csv(OUT / "manual_vs_auto_per_field.csv", index=False)
+    field_lines = [
+        "", "## Measured agreement on SELECTED expert polygon ROIs", "",
+        "| Field | ROI count | Sectors covered (of 12) | Median IoU | Mean Dice | IoU >= 0.5 | Manual mean ECD (um) | Matched automatic mean ECD (um) |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|",
+    ]
+    for row in per_field:
+        field_lines.append(
+            f"| {row['Working_Sample']} F{int(row['Field'])} | "
+            f"{row['Manual_ROI_Count']} | {row['Image_Sectors_Covered_of_12']} | "
+            f"{row['Median_IoU']:.3f} | {row['Mean_Dice']:.3f} | "
+            f"{row['Fraction_IoU_gte_050']:.1%} | "
+            f"{row['Manual_Mean_ECD_um']:.2f} | "
+            f"{row['Auto_Matched_Mean_ECD_um']:.2f} |")
+    field_lines += [
+        "",
+        "**Scope limitation:** Researchers drew only a selected number of shapes,"
+        " not a randomly sampled, complete or certified set of metallurgical grain"
+        " boundaries. Scores apply ONLY to the selected traced ROIs and do not"
+        " validate the remaining automated segmented regions.",
+        "",
+    ]
     text = [
         "# Phase 1 Task 4 — Independent manual versus automated optical segmentation",
         "", f"Active manual ROI archives submitted: **{len(all_files)}**.",
@@ -420,7 +446,8 @@ def main():
         "", "Expert signoff remains pending. Numerical agreement alone does not determine physical grain identity.",
         "", "See manual_vs_auto_per_roi.csv, manual_vs_auto_per_field.csv and generated three-panel images."
     ]
-    (OUT / "MANUAL_VALIDATION_STATUS.md").write_text("\n".join(text)+"\n", encoding="utf-8")
+    (OUT / "MANUAL_VALIDATION_STATUS.md").write_text(
+        "\n".join(text + field_lines) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":
