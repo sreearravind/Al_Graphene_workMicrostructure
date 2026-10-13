@@ -4,7 +4,7 @@
 
 Original human ROI ZIP archives were found. Their source files are unchanged. The script has deliberately withheld human-vs-automatic IoU/Dice scoring until the overlapping expert polygon selections are reviewed.
 
-- S06 field 1: 24 actual ROI entries, 5 overlapping ROI pair(s), 1228 overlap pixel(s).
+- S06 field 1: 24 actual ROI entries, 5 overlapping ROI pair(s), 3 substantive, 1228 overlap pixel(s).
   - ROI #1 versus #3: 649 pixels; 2.67% of smaller ROI.
   - ROI #1 versus #10: 31 pixels; 0.29% of smaller ROI.
   - ROI #2 versus #18: 1 pixels; 0.01% of smaller ROI.
