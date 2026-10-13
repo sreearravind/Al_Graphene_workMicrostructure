@@ -1,0 +1,50 @@
+name: Phase 1 Task 3 GrainStat Threshold Verification
+
+on:
+  push:
+    branches: [audit/phase1-task1-optical-validation]
+    paths:
+      - 'Phase1_Task3_Controlled_Boundary_Verification/reproduce_and_sensitivity.py'
+      - '.github/workflows/phase1_task3_grainstat_validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  grain-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout evidence data
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Configure Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies and pin upstream GrainStat
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas matplotlib pillow openpyxl tabulate scipy scikit-image seaborn imageio tifffile
+          git clone https://github.com/pranavkokati/grainstat.git /tmp/grainstat_repo
+          cd /tmp/grainstat_repo
+          git checkout 6398251a2fe557ed4b8279e0e7a15a0f97ed62de
+          sed -i 's/from skimage.feature import peak_local_maxima/from skimage.feature import peak_local_max as peak_local_maxima/' grainstat/core/segmentation.py
+          sed -i '/from \.interactive import InteractivePlotter/d' grainstat/visualization/__init__.py
+          sed -i "s/__all__ = \['PlotGenerator', 'InteractivePlotter'\]/__all__ = ['PlotGenerator']/" grainstat/visualization/__init__.py
+      - name: Audit selected image fields at 250 500 1000 pixel thresholds
+        env:
+          PYTHONPATH: /tmp/grainstat_repo
+          MPLBACKEND: Agg
+        run: python Phase1_Task3_Controlled_Boundary_Verification/reproduce_and_sensitivity.py
+      - name: Commit audit outputs (not manuscript data)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Phase1_Task3_Controlled_Boundary_Verification/output
+          if ! git diff --cached --quiet; then
+            git commit -m 'Save threshold sensitivity and computed contour QA outputs'
+            git push
+          fi
