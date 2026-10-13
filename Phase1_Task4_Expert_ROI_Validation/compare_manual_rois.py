@@ -177,6 +177,101 @@ def prepare_overlay(bmp, labels, allowed, manual_masks, stem):
     out.save(OUT / f"{stem}_manual_vs_auto.jpg", quality=84, optimize=True)
 
 
+
+def roi_overlap_preflight(pick, roi_zip):
+    """Detect independent human-ROI overlap WITHOUT editing user-drawn data.
+
+    Visualises every submitted polygon and highlights intersections in yellow.
+    Avoids reporting spurious human-automatic agreement if manual grain
+    outlines cover some of the same pixels.
+    """
+    working=int(str(pick["Working_sample"])[1:])
+    field=int(pick["Field"])
+    rois=roiread(roi_zip)
+    if not isinstance(rois,list):
+        rois=[rois]
+    if not rois:
+        raise ValueError("Uploaded ImageJ ROI ZIP has no ROI entries")
+    occupied=np.zeros((H,W),dtype=bool)
+    masks=[]
+    pairs=[]
+    rows=[]
+    preview_path=ROOT/str(pick["BMP_path"])
+    with Image.open(preview_path) as im:
+        raw=im.convert("RGB")
+    overlay=raw.copy()
+    mark=ImageDraw.Draw(overlay)
+    total_overlap=np.zeros((H,W),dtype=bool)
+    for i,roi in enumerate(rois,1):
+        if roi.roitype not in ALLOWED_ROIS:
+            raise ValueError(f"ROI {i} is {roi.roitype}; need closed polygon/freehand/traced")
+        pts=np.asarray(roi.coordinates(),dtype=float)
+        mask=mask_from_points(pts)
+        overlap_unique=int(np.count_nonzero(mask & occupied))
+        for j,prior in enumerate(masks,1):
+            intersect=int(np.count_nonzero(mask & prior))
+            if intersect:
+                smaller=min(int(mask.sum()),int(prior.sum()))
+                union=int(mask.sum())+int(prior.sum())-intersect
+                pairs.append({
+                    "Working_Sample":f"S{working:02d}",
+                    "Field":field,
+                    "Manual_ROI_A":j,"Manual_ROI_B":i,
+                    "Intersection_px":intersect,
+                    "Overlap_as_pct_smaller_ROI":100*intersect/smaller,
+                    "Pair_IoU":intersect/union,
+                    "Needs_expert_review":True})
+        total_overlap |= mask & occupied
+        occupied |= mask
+        masks.append(mask)
+        cx=float(pts[:,0].mean());cy=float(pts[:,1].mean())
+        coordinates=[(float(x),float(y)) for x,y in pts]
+        mark.line(coordinates+[coordinates[0]],fill=(0,255,170),width=3)
+        mark.text((max(0,cx),max(0,cy)),str(i),fill=(255,255,255),
+                  stroke_width=2,stroke_fill=(0,0,0))
+        rows.append({"Working_Sample":f"S{working:02d}","Field":field,
+            "ROI_Number":i,"ROI_Name":roi.name or f"ROI_{i}",
+            "Manual_Area_px":int(mask.sum()),
+            "Manual_ECD_um":SCALE*math.sqrt(4*mask.sum()/math.pi),
+            "Overlap_with_prior_unique_px":overlap_unique,
+            "Overlaps_prior":bool(overlap_unique),
+            "Centroid_of_vertices_x":cx,
+            "Centroid_of_vertices_y":cy})
+    if int(total_overlap.sum()):
+        pix=np.asarray(overlay).copy()
+        pix[total_overlap]=(255,245,0)
+        overlay=Image.fromarray(pix)
+    sheet=Image.new("RGB",(1920,765),"white")
+    original=ImageOps.contain(raw,(960,720),Image.Resampling.LANCZOS)
+    markup=ImageOps.contain(overlay,(960,720),Image.Resampling.LANCZOS)
+    sheet.paste(original,((960-original.width)//2,0))
+    sheet.paste(markup,(960+(960-markup.width)//2,0))
+    d=ImageDraw.Draw(sheet)
+    d.text((12,730),f"S{working:02d} F{field}: original BMP",fill=(20,20,20))
+    d.text((970,730),"Human ImageJ ROI polygons: cyan; overlaps: yellow (pixels)",fill=(20,20,20))
+    d.text((970,747),f"{len(masks)} expert ROI entries; {len(pairs)} overlapping pairs",fill=(20,20,20))
+    sheetname=f"S{working:02d}_F{field}_manual_ROI_overlap_diagnostic.jpg"
+    sheet.save(OUT/sheetname,quality=88,optimize=True)
+    with (OUT/f"S{working:02d}_F{field}_roi_inventory.csv").open("w",newline="",encoding="utf-8") as f:
+        writer=csv.DictWriter(f,fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+    if pairs:
+        with (OUT/f"S{working:02d}_F{field}_overlap_pairs.csv").open("w",newline="",encoding="utf-8") as f:
+            writer=csv.DictWriter(f,fieldnames=list(pairs[0]))
+            writer.writeheader()
+            writer.writerows(pairs)
+    return {
+        "Working_Sample":f"S{working:02d}",
+        "Field":field,
+        "ROI_Count":len(rois),
+        "Overlapping_Pairs":len(pairs),
+        "Total_Unique_Overlap_Pixels":int(total_overlap.sum()),
+        "Pairs":pairs,
+        "Diagnostic_Image":sheetname,
+        "Scientific_Comparison_Allowed":not bool(pairs)
+    }
+
 def self_test():
     """Synthetic in-memory software test; never a scientific manual ROI."""
     labels = np.zeros((100, 100), dtype=np.int32)
@@ -214,6 +309,7 @@ def main():
              for _, x in manifest.iterrows()}
     all_files = sorted(ROI_DIR.glob("*.zip"))
     reports = []
+    diagnostics = []
     if not all_files:
         (OUT / "MANUAL_VALIDATION_STATUS.md").write_text(
             "# Task 4: expert manual ROI comparison\n\n"
@@ -232,7 +328,43 @@ def main():
         key = int(match.group(1)), int(match.group(2))
         if key not in known:
             raise ValueError(f"ROI file {p.name} not in preselected 19-field register")
+        check = roi_overlap_preflight(known[key], p)
+        diagnostics.append(check)
+        if check["Overlapping_Pairs"]:
+            continue  # Human ROIs must be clarified: don't report invalid agreement
         reports += compare_field(known[key], p)
+    if diagnostics:
+        import json
+        (OUT / "expert_roi_preflight.json").write_text(
+            json.dumps(diagnostics, indent=2), encoding="utf-8")
+    if not reports:
+        details = []
+        for item in diagnostics:
+            details.append(
+                f"- {item['Working_Sample']} field {item['Field']}: "
+                f"{item['ROI_Count']} actual ROI entries, "
+                f"{item['Overlapping_Pairs']} overlapping ROI pair(s), "
+                f"{item['Total_Unique_Overlap_Pixels']} overlap pixel(s).")
+            for pair in item["Pairs"]:
+                details.append(
+                    f"  - ROI #{pair['Manual_ROI_A']} versus "
+                    f"#{pair['Manual_ROI_B']}: {pair['Intersection_px']} pixels; "
+                    f"{pair['Overlap_as_pct_smaller_ROI']:.2f}% of smaller ROI.")
+        (OUT / "MANUAL_VALIDATION_STATUS.md").write_text(
+            "# Task 4 — expert ROI preflight review\n\n"
+            "**Status: MANUAL ROI OVERLAP REVIEW REQUIRED.**\n\n"
+            "Original human ROI ZIP archives were found. Their source files "
+            "are unchanged. The script has deliberately withheld "
+            "human-vs-automatic IoU/Dice scoring until the overlapping "
+            "expert polygon selections are reviewed.\n\n"
+            + "\n".join(details) + "\n\n"
+            "Refer to the individual Sxx_Fy_manual_ROI_overlap_diagnostic.jpg "
+            "and overlapping-pairs CSVs, then edit the ROI Manager entries "
+            "in Fiji/ImageJ, verify boundaries and re-export the authentic "
+            "human ROI ZIP. Do not automatically delete overlapping ROIs.\n",
+            encoding="utf-8")
+        print("ROI REVIEW REQUIRED: overlap diagnostics saved; no scientific agreement scores generated")
+        return
     df = pd.DataFrame(reports)
     df.to_csv(OUT / "manual_vs_auto_per_roi.csv", index=False)
     per_field = []
