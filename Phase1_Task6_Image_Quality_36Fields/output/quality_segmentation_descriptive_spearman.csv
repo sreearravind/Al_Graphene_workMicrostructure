@@ -1,0 +1,13 @@
+QualityProxy,SegmentMetric,SpearmanRho,Note
+RMSContrast,Count500,0.13837044779319005,"Descriptive only; 36 nested fields, no independent specimen replication"
+RMSContrast,MeanECD500,-0.08056628056628058,"Descriptive only; 36 nested fields, no independent specimen replication"
+SpreadP95P05,Count500,0.10724422417956002,"Descriptive only; 36 nested fields, no independent specimen replication"
+SpreadP95P05,MeanECD500,-0.05773945743235902,"Descriptive only; 36 nested fields, no independent specimen replication"
+TileMeanRangeGray,Count500,-0.08109151824159044,"Descriptive only; 36 nested fields, no independent specimen replication"
+TileMeanRangeGray,MeanECD500,0.06924066924066924,"Descriptive only; 36 nested fields, no independent specimen replication"
+EntropyBits,Count500,0.12408289457919554,"Descriptive only; 36 nested fields, no independent specimen replication"
+EntropyBits,MeanECD500,-0.0712998712998713,"Descriptive only; 36 nested fields, no independent specimen replication"
+LaplacianVarianceSigma1,Count500,0.14570729944361965,"Descriptive only; 36 nested fields, no independent specimen replication"
+LaplacianVarianceSigma1,MeanECD500,-0.20643500643500645,"Descriptive only; 36 nested fields, no independent specimen replication"
+BlackFraction,Count500,0.0016096839415067393,"Descriptive only; 36 nested fields, no independent specimen replication"
+BlackFraction,MeanECD500,0.01776862344854319,"Descriptive only; 36 nested fields, no independent specimen replication"
