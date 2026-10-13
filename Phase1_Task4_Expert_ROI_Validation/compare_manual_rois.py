@@ -364,6 +364,23 @@ def main():
         import json
         (OUT / "expert_roi_preflight.json").write_text(
             json.dumps(diagnostics, indent=2), encoding="utf-8")
+        # A successful workflow can still contain unsatisfied scientific data
+        # gates. Record every submitted field, INCLUDING any held-back fields.
+        status_rows = []
+        for item in diagnostics:
+            blocked = item["Substantial_Overlapping_Pairs"] > 0
+            status_rows.append({
+                "Working_Sample": item["Working_Sample"],
+                "Field": item["Field"],
+                "Active_Manual_ROIs": item["ROI_Count"],
+                "Overlapping_Pairs_All": item["Overlapping_Pairs"],
+                "Substantive_Overlapping_Pairs": item["Substantial_Overlapping_Pairs"],
+                "Overlapping_Pixels_Unique": item["Total_Unique_Overlap_Pixels"],
+                "Comparison_Status": "HOLD_REVIEW_BOUNDARIES" if blocked else "SCORED_EXPERT_SIGNOFF_PENDING",
+                "Expert_Grain_Identity_Signed_Off": False
+            })
+        pd.DataFrame(status_rows).to_csv(
+            OUT / "roi_field_validation_gate.csv", index=False)
     if not reports:
         details = []
         for item in diagnostics:
@@ -432,6 +449,49 @@ def main():
         " validate the remaining automated segmented regions.",
         "",
     ]
+    # The three submitted ZIP files need not all be eligible for scoring.
+    # Do not label an unscored field as validated merely because CI passed.
+    gate_lines = [
+        "", "## Field-level provenance and scientific validation gates",
+        "", "| Submitted field | Human ROIs | Substantive overlapping pairs | Scientific scoring status |",
+        "|---|---:|---:|---|"
+    ]
+    for item in diagnostics:
+        hold = item["Substantial_Overlapping_Pairs"] > 0
+        gate_lines.append(
+            f"| {item['Working_Sample']} F{int(item['Field'])} | "
+            f"{item['ROI_Count']} | {item['Substantial_Overlapping_Pairs']} | "
+            f"{'HOLD — inspect and revise polygon overlap' if hold else 'PROVISIONAL SCORED — expert grain identity signoff pending'} |"
+        )
+    blocked = [d for d in diagnostics if d["Substantial_Overlapping_Pairs"] > 0]
+    if blocked:
+        gate_lines += [
+            "",
+            "**IMPORTANT:** The workflow can complete successfully while some "
+            "uploaded fields remain scientifically BLOCKED. The agreement "
+            "tables include only eligible fields; do not interpret all "
+            "submitted human ROIs as scored.",
+            "",
+            "### Conflicting manual polygons requiring original-image review",
+        ]
+        for item in blocked:
+            gate_lines.append(
+                f"- **{item['Working_Sample']} F{int(item['Field'])}:** "
+                f"{item['Substantial_Overlapping_Pairs']} substantive intersection(s)."
+            )
+            for p in item["Pairs"]:
+                if p["Substantial_for_comparison_gate"]:
+                    gate_lines.append(
+                        f"  - ROI #{p['Manual_ROI_A']} versus #{p['Manual_ROI_B']}: "
+                        f"{p['Intersection_px']} overlapping native pixels; "
+                        f"{p['Overlap_as_pct_smaller_ROI']:.2f}% of smaller traced region."
+                    )
+        gate_lines += [
+            "",
+            "Inspect original ImageJ ROI Manager objects against physical "
+            "etched boundaries. Do NOT automatically delete or merge "
+            "polygons to improve an agreement statistic.",
+        ]
     text = [
         "# Phase 1 Task 4 — Independent manual versus automated optical segmentation",
         "", f"Active manual ROI archives submitted: **{len(all_files)}**.",
@@ -447,7 +507,7 @@ def main():
         "", "See manual_vs_auto_per_roi.csv, manual_vs_auto_per_field.csv and generated three-panel images."
     ]
     (OUT / "MANUAL_VALIDATION_STATUS.md").write_text(
-        "\n".join(text + field_lines) + "\n", encoding="utf-8")
+        "\n".join(text + gate_lines + field_lines) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":
