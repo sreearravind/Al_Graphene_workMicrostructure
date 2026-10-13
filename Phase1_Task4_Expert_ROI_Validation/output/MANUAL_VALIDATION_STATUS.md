@@ -1,6 +1,6 @@
 # Phase 1 Task 4 — Independent manual versus automated optical segmentation
 
-Active manual ROI archives submitted: **1**.
+Active manual ROI archives submitted: **3**.
 Preserved historical backup ROI archives ignored: **1**.
 Total independently drawn ROI polygons: **9**.
 

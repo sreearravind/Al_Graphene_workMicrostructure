@@ -9,5 +9,84 @@
     "Pairs": [],
     "Diagnostic_Image": "S06_F1_manual_ROI_overlap_diagnostic.jpg",
     "Scientific_Comparison_Allowed": true
+  },
+  {
+    "Working_Sample": "S06",
+    "Field": 2,
+    "ROI_Count": 16,
+    "Overlapping_Pairs": 3,
+    "Substantial_Overlapping_Pairs": 3,
+    "Total_Unique_Overlap_Pixels": 18303,
+    "Pairs": [
+      {
+        "Working_Sample": "S06",
+        "Field": 2,
+        "Manual_ROI_A": 1,
+        "Manual_ROI_B": 5,
+        "Intersection_px": 12726,
+        "Overlap_as_pct_smaller_ROI": 81.23842962017235,
+        "Pair_IoU": 0.6075623030650243,
+        "Substantial_for_comparison_gate": true,
+        "Needs_expert_review": true
+      },
+      {
+        "Working_Sample": "S06",
+        "Field": 2,
+        "Manual_ROI_A": 2,
+        "Manual_ROI_B": 6,
+        "Intersection_px": 3430,
+        "Overlap_as_pct_smaller_ROI": 58.00777946896668,
+        "Pair_IoU": 0.2942185623606107,
+        "Substantial_for_comparison_gate": true,
+        "Needs_expert_review": true
+      },
+      {
+        "Working_Sample": "S06",
+        "Field": 2,
+        "Manual_ROI_A": 4,
+        "Manual_ROI_B": 11,
+        "Intersection_px": 2147,
+        "Overlap_as_pct_smaller_ROI": 87.74008990600736,
+        "Pair_IoU": 0.7185408299866132,
+        "Substantial_for_comparison_gate": true,
+        "Needs_expert_review": true
+      }
+    ],
+    "Diagnostic_Image": "S06_F2_manual_ROI_overlap_diagnostic.jpg",
+    "Scientific_Comparison_Allowed": false
+  },
+  {
+    "Working_Sample": "S06",
+    "Field": 3,
+    "ROI_Count": 15,
+    "Overlapping_Pairs": 2,
+    "Substantial_Overlapping_Pairs": 2,
+    "Total_Unique_Overlap_Pixels": 11079,
+    "Pairs": [
+      {
+        "Working_Sample": "S06",
+        "Field": 3,
+        "Manual_ROI_A": 1,
+        "Manual_ROI_B": 10,
+        "Intersection_px": 5798,
+        "Overlap_as_pct_smaller_ROI": 100.0,
+        "Pair_IoU": 0.5189295623377785,
+        "Substantial_for_comparison_gate": true,
+        "Needs_expert_review": true
+      },
+      {
+        "Working_Sample": "S06",
+        "Field": 3,
+        "Manual_ROI_A": 9,
+        "Manual_ROI_B": 15,
+        "Intersection_px": 5281,
+        "Overlap_as_pct_smaller_ROI": 99.02493905869117,
+        "Pair_IoU": 0.7349011967715001,
+        "Substantial_for_comparison_gate": true,
+        "Needs_expert_review": true
+      }
+    ],
+    "Diagnostic_Image": "S06_F3_manual_ROI_overlap_diagnostic.jpg",
+    "Scientific_Comparison_Allowed": false
   }
 ]

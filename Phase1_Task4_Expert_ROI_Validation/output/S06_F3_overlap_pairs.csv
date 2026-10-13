@@ -1,0 +1,3 @@
+Working_Sample,Field,Manual_ROI_A,Manual_ROI_B,Intersection_px,Overlap_as_pct_smaller_ROI,Pair_IoU,Substantial_for_comparison_gate,Needs_expert_review
+S06,3,1,10,5798,100.0,0.5189295623377785,True,True
+S06,3,9,15,5281,99.02493905869117,0.7349011967715001,True,True
