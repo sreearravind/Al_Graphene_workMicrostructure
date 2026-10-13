@@ -496,7 +496,9 @@ def main():
         "# Phase 1 Task 4 — Independent manual versus automated optical segmentation",
         "", f"Active manual ROI archives submitted: **{len(all_files)}**.",
         f"Preserved historical backup ROI archives ignored: **{len(backups)}**.",
-        f"Total independently drawn ROI polygons: **{len(df)}**.",
+        f"Total submitted expert polygon ROIs across all active archives: **{sum(d['ROI_Count'] for d in diagnostics)}**.",
+        f"Human polygon ROIs included in agreement calculations (eligible fields only): **{len(df)}**.",
+        f"Human polygon ROIs held out pending review: **{sum(d['ROI_Count'] for d in blocked)}**.",
         "", "These are agreement metrics for the explicitly traced objects only.",
         "No assertion of representative metallographic grain-size distribution "
         "or mechanism is made until expert field selection and boundary identity are signed off.",
