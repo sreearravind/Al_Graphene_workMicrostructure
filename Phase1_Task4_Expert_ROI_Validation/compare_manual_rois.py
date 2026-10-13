@@ -211,7 +211,7 @@ def main():
     ROI_DIR.mkdir(parents=True, exist_ok=True)
     manifest = pd.read_csv(PICKS)
     known = {(int(str(x.Working_sample)[1:]), int(x.Field)): x.to_dict()
-             for x in manifest.itertuples(index=False)}
+             for _, x in manifest.iterrows()}
     all_files = sorted(ROI_DIR.glob("*.zip"))
     reports = []
     if not all_files:
