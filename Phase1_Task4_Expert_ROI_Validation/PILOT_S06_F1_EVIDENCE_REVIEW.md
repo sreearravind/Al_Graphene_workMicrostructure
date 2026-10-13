@@ -1,44 +1,67 @@
-# Task 4 — S06_F1 user-submitted ImageJ ROI pilot
+# Task 4 — S06_F1 revised ImageJ ROI pilot: measured agreement
 
-**Status: geometry QA completed; manual–automatic scientific agreement on hold.**
+**Status: file/overlap check PASSED; selected polygon agreement CALCULATED; actual metallurgical grain validity still PENDING.**
 
-## Provenance and quantitative facts
+## Evidence source and timeline
 
-- User-uploaded source: `manual_rois/S06_F1.zip`, preserved unchanged.
-- The ImageJ ROI ZIP was successfully parsed as **24 closed polygon ROIs** using the original 1600 × 1200-pixel source image. All 12 review sectors (4 columns × 3 rows) contain ROI centroids.
-- Researcher-confirmed ImageJ scale for 100× images: **0.473 µm per pixel**.
-- Across the 24 selected manually drawn polygons, mean equivalent circular diameter **50.30 µm**, range **30.47–90.44 µm**. These are selected *polygon feature* measurements, not yet representative or verified grain-size statistics.
-- The historic automated GrainStat result on the full image contains 329 objects, mean ECD 24.73 µm. **Do not compare these two means as independent measurements of the same population**; the ImageJ ROIs are a selected subset.
-- Pixel-coordinate rasterization identified 5 pairs of overlapping manual polygons, total **1,228 unique overlapping pixels**. No expert polygons were deleted or altered.
+- Working condition **S06 = 2 wt.% graphene, 600 °C**; original BMP: `Optical miscrostructure_Figures_BMP file/2-600 - Copy/100x1.bmp`.
+- 100× ImageJ ruler-based calibration, as confirmed by researcher: **0.473 µm/pixel**.
+- **Archived original** manual ROI ZIP `manual_rois/S06_F1_backup.zip` (4,604 bytes; first pilot: 24 polygon ROIs, five overlapping pairs totaling 1,228 unique overlapping pixels).
+- **Revised active** `manual_rois/S06_F1.zip` (1,745 bytes; nine polygon ROIs, **zero** overlapping pairs). This active ZIP alone was used for new manual–automated comparisons.
+- Workflow initially failed because the backup file was parsed as an active archive. The code now excludes `_backup.zip` case-insensitively and keeps backup provenance unchanged.
+- Original BMP and historical TIFF S06/F1 decoded pixels match. GrainStat 500-pixel original segmented total: **329 regions**, mean ECD **24.73 µm** (full-field algorithm population).
 
-## ROI pairs requiring ImageJ boundary inspection
+## Actual verified computational comparisons: active revised ZIP
 
-| ROI positions | ImageJ saved ROI names | Shared pixels | Fraction of smaller ROI |
-|---|---|---:|---:|
-| 1 and 3 | `0740-0417` / `0769-0587` | 649 | 2.67% |
-| 1 and 10 | `0740-0417` / `0678-0237` | 31 | 0.29% |
-| 2 and 18 | `0785-1060` / `0875-1207` | 1 | 0.01% |
-| 2 and 19 | `0785-1060` / `0748-1210` | 88 | 1.77% |
-| 17 and 24 | `0877-1367` / `0834-1433` | 459 | 10.84% |
+| Measure | Result |
+|---|---:|
+| Human-drawn nonoverlapping polygon ROIs | 9 |
+| Image sectors represented (4 × 3) | 6 of 12 |
+| Overlap pairs | **0** |
+| Median polygon-vs-matched-region IoU | **0.548** |
+| Mean Dice (nine matched comparisons) | **0.692** |
+| IoU ≥ 0.50 | **6 of 9** (66.7%) |
+| IoU ≥ 0.70 | **2 of 9** (22.2%) |
+| Manual mean ECD of the nine selected polygons | **38.73 µm** |
+| Mean ECD of the nine matched automatic objects | **39.61 µm** |
 
-Substantial overlaps (#1/#3, #2/#19, and #17/#24) deserve particular attention. One-pixel contact and small contour intersections can arise through pixel rasterization, but must still be recorded; their practical interpretation requires expert judgement.
+The selected manual mean and matched automatic mean differ by about **2.3%** relative to the manual mean. The relatively close mean values **do not establish boundary agreement**, which is only moderate/variable across the nine regions. Moreover, they MUST NOT be compared with the **24.73 µm** full-field automated mean as if they represent an identical sampling population. Expert ROIs are selected features; they do not exhaustively trace 329 algorithmic objects.
 
-## How to review without damaging the evidence
+## All nine polygon comparisons
 
-1. Open the ORIGINAL BMP file in `Optical miscrostructure_Figures_BMP file/2-600 - Copy/100x1.bmp` in Fiji/ImageJ.
-2. In `Analyze > Tools > ROI Manager`, open the existing `S06_F1.zip`, then enable **Show All**. The ROI Manager entries should correspond to the saved names in the table.
-3. For each pair, inspect whether the two polygons really represent distinct physically distinguishable grains. Correct the original polygon contours manually where defensible; mark an uncertain boundary **UNRESOLVABLE** rather than inventing one.
-4. Save a corrected `S06_F1.zip` in a **new local folder** while retaining a backup of the original ZIP. Then update the audit-branch `manual_rois/S06_F1.zip` with the verified file. Do not use automated post-processing to force contours apart.
-5. Rerun `Phase 1 Task 4 Human ROI Boundary Comparison`. The workflow will re-evaluate ROI geometry and only report actual overlap-aware manual-versus-GrainStat IoU/Dice if the accepted manual ROI set has passed QA.
+| Manual ROI | IoU | Dice | Manual ECD (µm) | Matched auto ECD (µm) |
+|---:|---:|---:|---:|---:|
+| 1 | 0.416 | 0.587 | 50.55 | 43.04 |
+| 2 | 0.548 | 0.708 | 59.13 | 55.44 |
+| 3 | 0.733 | 0.846 | 41.26 | 46.76 |
+| 4 | 0.559 | 0.717 | 48.90 | 51.20 |
+| 5 | 0.716 | 0.835 | 31.42 | 36.44 |
+| 6 | 0.609 | 0.757 | 29.39 | 31.96 |
+| 7 | 0.530 | 0.692 | 34.97 | 45.19 |
+| 8 | 0.425 | 0.597 | 34.62 | 30.47 |
+| 9 | 0.324 | 0.489 | 18.31 | 15.98 |
 
-## Source audit outputs
+Every comparison uses the exact original BMP for visualization and its decoded-pixel-identical historical TIFF for the GrainStat mask, maintaining the same 0.473 µm/pixel scale and 500-pixel segmentation minimum.
 
-- `output/S06_F1_manual_ROI_overlap_diagnostic.jpg`: original BMP (left), drawn polygons and overlap pixels (right).
-- `output/S06_F1_roi_inventory.csv`: per-polygon area, ECD, and image coordinates.
-- `output/S06_F1_overlap_pairs.csv`: reproducible overlap intersections and percentage of smaller ROI.
-- `output/expert_roi_preflight.json`: complete machine-readable preflight.
-- `output/MANUAL_VALIDATION_STATUS.md`: intentionally **REVIEW REQUIRED** (not an invented agreement score).
+## What passes and what remains blocked
 
-## Manuscript implication
+**PASS:** real ROI archive ingestion; preserved original backup; zero manual polygon overlaps; exact BMP/TIFF identity; software verification; matching to automated regions; non-fabricated IoU and Dice diagnostic scores.
 
-Task 4 has progressed from no expert contours to a real 24-polygon ImageJ pilot and a traceable QA report. However, the outlines have not been approved as true grain boundaries, and the 24-object selected mean must not replace the previous 329-object automated result. Figure 4 and grain–property correlations are still on hold pending verified expert ROI boundaries.
+**PENDING:** qualified expert assessment that the nine polygon outlines represent genuine metallographic grain boundaries, not merely bright patches, etching contrast, microconstituents or reinforcement agglomeration. The revised sample covers only half of the 12 spatial sectors, and its nine selectively drawn regions are too limited to validate all 329 full-field automated objects, let alone twelve material conditions.
+
+**NO-GO for publication-level grain validation:** do not yet amend the grain-size distributions, structure–property correlations, EBSD/DRX claims, or Figure 4 using these nine-region diagnostics. A stronger independently sampled manual ROI set and representative fields are needed. The earlier 24-polygon set failed overlap QA; it must not be combined silently with the revised nine.
+
+## Audit artifacts
+
+- [Current workflow status and score summary](output/MANUAL_VALIDATION_STATUS.md)
+- [Per-ROI IoU and Dice](output/manual_vs_auto_per_roi.csv)
+- [Per-field agreement and sample coverage](output/manual_vs_auto_per_field.csv)
+- [Original BMP, automated segmentation and actual human contours](output/S06_F1_manual_vs_auto.jpg)
+- [Nine human ROIs with areas and no-overlap flags](output/S06_F1_roi_inventory.csv)
+- [Provenance and human-ROI preflight JSON](output/expert_roi_preflight.json)
+
+Old `S06_F1_overlap_pairs.csv` originated from the first manual upload and is **not a valid current finding**. The revised workflow removes this obsolete derived file automatically when the corrected ROI archive has zero overlaps. The earlier backup ZIP remains preserved.
+
+## Recommended next scientific step
+
+Review the actual red/green outlines at native resolution, then extend the manual pilot to a field with drastically different automated counts, particularly **S06_F2** (23 automatically detected regions) and **S06_F3** (344 automatically detected regions). This comparison can help distinguish heterogeneous microstructure from segmentation failures. If physical grain boundaries are unresolvable at 100×, record that limitation and consider restricting the analysis to explicitly defined optically segmented features instead of verified grains.
