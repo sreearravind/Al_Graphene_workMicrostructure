@@ -1,0 +1,58 @@
+name: Phase 1 Task 4 Human ROI Boundary Comparison
+
+on:
+  push:
+    branches: [audit/phase1-task1-optical-validation]
+    paths:
+      - 'Phase1_Task4_Expert_ROI_Validation/compare_manual_rois.py'
+      - 'Phase1_Task4_Expert_ROI_Validation/manual_rois/**'
+      - '.github/workflows/phase1_task4_human_roi_comparison.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  expert-roi-evidence-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout optical data and audit branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Configure Python environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install reproducible segmentation and ROI reader
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas matplotlib pillow openpyxl tabulate scipy scikit-image seaborn imageio tifffile "roifile==2026.2.10"
+          git clone https://github.com/pranavkokati/grainstat.git /tmp/grainstat_repo
+          cd /tmp/grainstat_repo
+          git checkout 6398251a2fe557ed4b8279e0e7a15a0f97ed62de
+          sed -i 's/from skimage.feature import peak_local_maxima/from skimage.feature import peak_local_max as peak_local_maxima/' grainstat/core/segmentation.py
+          sed -i '/from \.interactive import InteractivePlotter/d' grainstat/visualization/__init__.py
+          sed -i "s/__all__ = \['PlotGenerator', 'InteractivePlotter'\]/__all__ = ['PlotGenerator']/" grainstat/visualization/__init__.py
+      - name: Verify ROI math and ZIP reader with TEMPORARY SOFTWARE TEST ONLY
+        env:
+          PYTHONPATH: /tmp/grainstat_repo
+          MPLBACKEND: Agg
+        run: |
+          python Phase1_Task4_Expert_ROI_Validation/compare_manual_rois.py --self-test
+      - name: Evaluate actual human ROIs or return PENDING
+        env:
+          PYTHONPATH: /tmp/grainstat_repo
+          MPLBACKEND: Agg
+        run: |
+          python Phase1_Task4_Expert_ROI_Validation/compare_manual_rois.py
+      - name: Commit evidence status or genuine ROI comparison outputs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Phase1_Task4_Expert_ROI_Validation/output
+          if ! git diff --cached --quiet; then
+            git commit -m "Record Task 4 human-ROI validation status (or comparisons)"
+            git push
+          fi
