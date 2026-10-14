@@ -25,9 +25,15 @@
     1600,
     1200
   ],
-  "status": "RESEARCHER_REFERENCE_RECORDED; TRANSFER_TO_ALL_400X_FIELDS_CONDITIONAL",
+  "status": "RESEARCHER_CONFIRMED_FOR_400X_SOURCE_IMAGE_SERIES",
   "condition_for_transfer": "same optical field of view / objective, camera optical adapter, digital zoom, output resizing and crop as original 1600x1200 files",
-  "external_XRD_status": "native source data requested from collaborator, not yet received",
+  "external_XRD_status": "Native measured XRD requested from collaborator; not received.",
   "do_not_claim": "independently instrument-certified calibration or crystallographic grain boundaries",
-  "guidance": "Use working-scale bars in labelled QA figure pending objective/camera FOV confirmation. The submitted source JPEG stays a user attachment; upload it unchanged alongside this JSON for independent archival replication."
+  "guidance": "Use working-scale bars in labelled QA figure pending objective/camera FOV confirmation. The submitted source JPEG stays a user attachment; upload it unchanged alongside this JSON for independent archival replication.",
+  "author_confirmation_date": "2026-10-14",
+  "author_attestation": "User confirms original 400x scale image was not resized or cropped and explicitly approves applying the supplied reference calibration to all archival nominal 400x micrographs.",
+  "calibration_transfer_basis": "Researcher attestation of common 400x acquisition/export field; exact microscope log and optical adapter settings not independently archived.",
+  "calibration_transfer_author_approved": true,
+  "calibration_transfer_independently_instrument_verified": false,
+  "nativescale_100um_bar_pixels": 296
 }
