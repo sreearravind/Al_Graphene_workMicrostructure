@@ -2,8 +2,8 @@
 """Task 6: working Figure 3 from original, traceable 400x images.
 
 No source photograph changes. The supplied 50um/148px 400x bar is
-RESEARCHER-ATTESTED, NOT verified as same instrument field of view across
-all archived 400x frames; DO NOT SUBMIT this working draft until confirmed.
+RESEARCHER-CONFIRMED as same acquisition field of view across
+all archived 400x frames; Physical calibration is researcher-confirmed; crystallographic grains remain unverified.
 """
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageOps
@@ -17,6 +17,7 @@ TIFFS=ROOT/"Optical microstructure/400 x"
 META=json.loads((HERE/"400x_reference_calibration_audit.json").read_text(encoding="utf-8"))
 UM_PER_PIXEL=float(META["derived_micrometre_per_pixel"])
 assert abs(UM_PER_PIXEL-50/148)<1e-12
+assert META.get("calibration_transfer_author_approved") is True, "Author transfer approval required"
 assert META["source_image_pixels"]==[1600,1200]
 
 CONDS=[
@@ -78,8 +79,8 @@ def main():
                 "Exact_BGR_TIFF_Equivalent":True,
                 "Figure3_Selected":bool(field==1),
                 "Nominal_400x":True,
-                "Bar_Calibration_Source":"Researcher supplied 50um/148px photograph",
-                "Calibration_Transfer_Instrument_Confirmed":False,
+                "Bar_Calibration_Source":"Researcher-confirmed 50um/148px reference photograph",
+                "Calibration_Transfer_Author_Confirmed":True,
                 "Grain_Boundaries_Physically_Validated":False
             })
             if field==1:
@@ -97,10 +98,10 @@ def main():
     draw.text((MARGIN,16),"Al-GNP | original 400× optical micrographs | 12 conditions",
               font=font(34),fill="#172b43")
     draw.text((MARGIN,65),
-              "PROVISIONAL calibration from researcher-supplied 50 µm reference (148 pixels at 1600 × 1200).",
+              "RESEARCHER-CONFIRMED 400× calibration: 50 µm / 148 native pixels (1600 × 1200).",
               font=font(22),fill="#39495e")
     draw.text((MARGIN,97),
-              "FOR AUTHOR VERIFICATION — confirm common microscope camera field of view before journal submission.",
+              "Author attests common 400× image acquisition / no cropping or resizing; physical grains not verified.",
               font=font(18),fill="#9f2727")
     for c,t in enumerate((500,550,600)):
         x=MARGIN+LEFT+c*(PW+GAP)+PW//2
@@ -124,12 +125,12 @@ def main():
               font=font(23),fill="#223a50")
     draw.text((MARGIN,footer+37),"Bar transfer is conditional. Physical grain sizes, EBSD/DRX and imaging-system identity are NOT verified.",
               font=font(20),fill="#9f2727")
-    out=OUT/"FIGURE3_400x_12conditions_100um_PROVISIONAL.png"
+    out=OUT/"FIGURE3_400x_12conditions_100um_AUTHOR_CONFIRMED.png"
     sheet.save(out,dpi=(300,300),optimize=True)
     # Compact image for downstream visual QA without accessing the
     # multi-megabyte full-resolution scientific layout.
     ImageOps.contain(sheet,(1340,1500),Image.Resampling.LANCZOS).save(
-        OUT/"FIGURE3_400x_PROVISIONAL_REVIEW_PREVIEW.jpg",
+        OUT/"FIGURE3_400x_AUTHOR_CONFIRMED_PREVIEW.jpg",
         quality=76,optimize=True)
     (OUT/"FIGURE3_400x_12conditions_100um_PROVISIONAL.jpg").write_bytes(b"") if False else None
     audit={
@@ -143,8 +144,9 @@ def main():
       "conditions_shown":len(images),
       "images_selected_uniformly":"F1 for each condition",
       "original_400x_dimensions":[1600,1200],
-      "reader_confirmation_still_needed":"same microscope objective/camera and field of view, original digital zoom/crop/resizing",
-      "warning_100x_relation":"0.473um/px prior at 100x vs 0.337838um/px at 400x; factor ~1.40, not nominal factor 4",
+      "researcher_approved_transfer":bool(META.get("calibration_transfer_author_approved")),
+      "instrument_log_independently_verified":False,
+      "warning_100x_relation":"0.473um/px prior at 100x vs 0.337838um/px at 400x; factor ~1.40, not nominal factor 4; 100x calibration must remain separate",
       "no_physical_grain_identification":True
     }
     (OUT/"figure3_calibration_transfer_readiness.json").write_text(
@@ -158,11 +160,11 @@ def main():
       "historical TIFF source pixels exactly after S10/S11/S12 crosswalk.\n"
       "- Original Figure 3 is now prepared using all twelve first fields, no "
       "segmentation preprocessing and a derived 100µm/296px native-width bar "
-      "on every panel. The figure remains prominently marked **PROVISIONAL**.\n"
-      "- Conditions for submission: original 400x microscope photographs were "
-      "captured with identical objective, camera optics, software acquisition "
+      "on every panel. **The author confirms calibration transfer for all 400× images.**\n"
+      "- Author confirms that original 400x microscope photographs were "
+      "captured with consistent objective, camera optics, software acquisition "
       "magnification and unmodified field of view as the scale-reference frame. "
-      "Equal digital pixel dimensions alone do NOT prove this.\n"
+      "This is author attestation, not independently certified instrument metadata.\n"
       "- Flag for investigation: prior 100x ImageJ scale 0.473µm/px is only "
       "1.4 times the new 400x pixel scale, not the nominal 4 times. This could "
       "reflect different camera interfaces/cropping, but must not be ignored.\n"
