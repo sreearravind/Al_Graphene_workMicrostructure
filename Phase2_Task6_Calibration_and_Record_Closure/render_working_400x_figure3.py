@@ -126,6 +126,11 @@ def main():
               font=font(20),fill="#9f2727")
     out=OUT/"FIGURE3_400x_12conditions_100um_PROVISIONAL.png"
     sheet.save(out,dpi=(300,300),optimize=True)
+    # Compact image for downstream visual QA without accessing the
+    # multi-megabyte full-resolution scientific layout.
+    ImageOps.contain(sheet,(1340,1500),Image.Resampling.LANCZOS).save(
+        OUT/"FIGURE3_400x_PROVISIONAL_REVIEW_PREVIEW.jpg",
+        quality=76,optimize=True)
     (OUT/"FIGURE3_400x_12conditions_100um_PROVISIONAL.jpg").write_bytes(b"") if False else None
     audit={
       "reference_sha256":META["source_sha256"],
