@@ -1,4 +1,4 @@
-name: Phase 2 Task 6 - Provisional 400x Calibration and Figure 3
+name: Phase 2 Task 6 - Author-Confirmed 400x Calibration and Figure 3
 on:
   push:
     branches: [audit/phase1-task1-optical-validation]
@@ -32,6 +32,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add Phase2_Task6_Calibration_and_Record_Closure/output
           if ! git diff --cached --quiet; then
-            git commit -m 'Record conditional 400x reference scale and original-image Figure 3 draft'
-            git push
+            git commit -m 'Record researcher-confirmed 400x calibration and traced Figure 3 source'
+            git pull --rebase origin audit/phase1-task1-optical-validation
+            git push origin HEAD:audit/phase1-task1-optical-validation
           fi
