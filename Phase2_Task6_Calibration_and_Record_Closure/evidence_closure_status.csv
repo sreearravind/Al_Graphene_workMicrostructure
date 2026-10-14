@@ -1,0 +1,11 @@
+Item,Current_Status,Source_or_Evidence,What_is_needed,Publication_impact
+Original_400x_scale_photo,MEASURED,"50um label 148px 1600x1200 JPEG SHA b16409...","Archive unchanged original in audit branch",Figure 3 calibration provenance
+Pixel_calibration_400x,CONDITIONAL,0.337837838_um_per_pixel,"Confirm same objective camera FOV digital zoom and uncropped export",Figure 3 scale bars provisional
+Original_400x_images,PASS,36_36_RGBBMP_TIFF_pairs_verified,"None for source identity",Micrograph provenance verified
+100x_vs_400x_cross_check,OPEN,"0.473 divided by 0.337838 = 1.40 not 4","Check optical camera zoom adapter and calibration histories",Avoid false scale transfer
+Physical_grain_size,NOT_VALIDATED,"Human ROI pilot and CLAHE-sensitivity audits","Independent grains not resolvable from current sources",Removed original Figure 4 stays removed
+XRD_native_scan,REQUESTED_NOT_RECEIVED,Collaborator_request,Original_2theta_intensity_and_temperature_ID,Do not finalize new Figure 4
+XRD_12_condition_coverage,NOT_ACQUIRED,Historical_work_scope,No_new_specimens,Unfulfillable reviewer 8 request
+Hardness_instrument_config,REQUEST,Archive_nine_spatial_hardness_values,Indenter_major_minor_load_dwell,Methods comment4
+Tensile_machine_config,REQUEST,UTS_source_summary,Gauge_strain_rate_or_crosshead_UTM_export,Methods comment4
+Tribometer_source,REQUEST,COF_summary_S12_0.125,Native_trace_and_gravimetric_data,Results_precision
