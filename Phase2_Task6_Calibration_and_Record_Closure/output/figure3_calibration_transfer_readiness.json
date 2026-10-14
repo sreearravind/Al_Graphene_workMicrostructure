@@ -13,7 +13,8 @@
     1600,
     1200
   ],
-  "reader_confirmation_still_needed": "same microscope objective/camera and field of view, original digital zoom/crop/resizing",
-  "warning_100x_relation": "0.473um/px prior at 100x vs 0.337838um/px at 400x; factor ~1.40, not nominal factor 4",
+  "researcher_approved_transfer": true,
+  "instrument_log_independently_verified": false,
+  "warning_100x_relation": "0.473um/px prior at 100x vs 0.337838um/px at 400x; factor ~1.40, not nominal factor 4; 100x calibration must remain separate",
   "no_physical_grain_identification": true
 }
