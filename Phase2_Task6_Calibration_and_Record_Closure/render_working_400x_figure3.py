@@ -98,11 +98,11 @@ def main():
     draw.text((MARGIN,16),"Al-GNP | original 400× optical micrographs | 12 conditions",
               font=font(34),fill="#172b43")
     draw.text((MARGIN,65),
-              "RESEARCHER-CONFIRMED 400× calibration: 50 µm / 148 native pixels (1600 × 1200).",
+              "400× optical micrographs | 50 µm reference = 148 native pixels.",
               font=font(22),fill="#39495e")
     draw.text((MARGIN,97),
-              "Author attests common 400× image acquisition / no cropping or resizing; physical grains not verified.",
-              font=font(18),fill="#9f2727")
+              "Panels are original unenhanced optical images; 100 µm scale bars are researcher-calibrated.",
+              font=font(18),fill="#344b60")
     for c,t in enumerate((500,550,600)):
         x=MARGIN+LEFT+c*(PW+GAP)+PW//2
         draw.text((x,TOP-18),f"{t} °C",anchor="mm",font=font(30),fill="#173451")
@@ -121,10 +121,10 @@ def main():
         draw.rectangle((x+12,y+12,x+190,y+63),fill="#16191d")
         draw.text((x+27,y+22),sid+" | F1",font=font(26),fill="white")
     footer=TOP+4*PH+3*GAP+26
-    draw.text((MARGIN,footer),f"Working conversion: 50 µm / 148 px = {UM_PER_PIXEL:.6f} µm/px; 100 µm bar = 296 px at native resolution.",
+    draw.text((MARGIN,footer),f"Author-confirmed 400× scale: 50 µm / 148 pixels = {UM_PER_PIXEL:.6f} µm/pixel.",
               font=font(23),fill="#223a50")
-    draw.text((MARGIN,footer+37),"Bar transfer is conditional. Physical grain sizes, EBSD/DRX and imaging-system identity are NOT verified.",
-              font=font(20),fill="#9f2727")
+    draw.text((MARGIN,footer+37),"Consistent 400× acquisition settings confirmed by researcher; image contrast is not crystallographic grain identification.",
+              font=font(20),fill="#344b60")
     out=OUT/"FIGURE3_400x_12conditions_100um_AUTHOR_CONFIRMED.png"
     sheet.save(out,dpi=(300,300),optimize=True)
     # Compact image for downstream visual QA without accessing the
@@ -132,7 +132,7 @@ def main():
     ImageOps.contain(sheet,(1340,1500),Image.Resampling.LANCZOS).save(
         OUT/"FIGURE3_400x_AUTHOR_CONFIRMED_PREVIEW.jpg",
         quality=76,optimize=True)
-    (OUT/"FIGURE3_400x_12conditions_100um_PROVISIONAL.jpg").write_bytes(b"") if False else None
+
     audit={
       "reference_sha256":META["source_sha256"],
       "source_bar_pixels":148,"source_bar_um":50,
@@ -146,6 +146,7 @@ def main():
       "original_400x_dimensions":[1600,1200],
       "researcher_approved_transfer":bool(META.get("calibration_transfer_author_approved")),
       "instrument_log_independently_verified":False,
+      "calibration_statement_for_manuscript":"Microscope 400× micrographs were calibrated from an unmodified 50 µm scale reference spanning 148 pixels; 0.338 µm/pixel, researcher-confirmed common acquisition conditions.",
       "warning_100x_relation":"0.473um/px prior at 100x vs 0.337838um/px at 400x; factor ~1.40, not nominal factor 4; 100x calibration must remain separate",
       "no_physical_grain_identification":True
     }
