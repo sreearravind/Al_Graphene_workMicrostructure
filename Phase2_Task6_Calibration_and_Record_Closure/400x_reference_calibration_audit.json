@@ -1,0 +1,33 @@
+{
+  "schema_version": "phase2_task6_400x_calibration_v1",
+  "source_name": "Scale_reference_400x1.jpg",
+  "source_sha256": "b16409f2d06ea63469060850dcc5939b6c5bd5f74cd205508e1832b6e34ad3ec",
+  "source_image_pixels": [
+    1600,
+    1200
+  ],
+  "source_nature": "researcher-uploaded nominal 400x optical micrograph with embedded 50 µm bar",
+  "reference_bar_label_micrometre": 50,
+  "white_bar_x_inclusive": [
+    1204,
+    1351
+  ],
+  "white_bar_y_inclusive": [
+    1056,
+    1063
+  ],
+  "verified_nearly_white_run_pixels": 148,
+  "bar_detection_method": "longest contiguous RGB channels >=225 run in horizontal rows 1056-1063; stable at thresholds 200,225,245",
+  "derived_micrometre_per_pixel": 0.33783783783783783,
+  "reference_100x_micrometre_per_pixel_previous": 0.473,
+  "nominal_magnification_scaling_check": "0.473 / (50/148) = 1.400 rather than nominal factor 4; possible imaging/export differences; not resolvable from supplied files alone",
+  "original_400x_source_dimensions": [
+    1600,
+    1200
+  ],
+  "status": "RESEARCHER_REFERENCE_RECORDED; TRANSFER_TO_ALL_400X_FIELDS_CONDITIONAL",
+  "condition_for_transfer": "same optical field of view / objective, camera optical adapter, digital zoom, output resizing and crop as original 1600x1200 files",
+  "external_XRD_status": "native source data requested from collaborator, not yet received",
+  "do_not_claim": "independently instrument-certified calibration or crystallographic grain boundaries",
+  "guidance": "Use working-scale bars in labelled QA figure pending objective/camera FOV confirmation. The submitted source JPEG stays a user attachment; upload it unchanged alongside this JSON for independent archival replication."
+}
