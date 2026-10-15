@@ -1,0 +1,13 @@
+XRD_original_export_col,Condition,GNP_wt_pct,Prior_Sintering_C,Author_Test_Stage,Native_Instrument_File,Carbon_002_candidate_apex_2theta,Carbon_002_candidate_apex_intensity,Al_111_apex_2theta,Al_111_apex_intensity,Al_200_apex_2theta,Al_200_apex_intensity,Al_220_apex_2theta,Al_220_apex_intensity,Al_311_apex_2theta,Al_311_apex_intensity
+Al-500,S01,0,500,post-hot-extrusion,not retained before 2022,26.86,217.0,38.48,1352.0,44.71,663.0,65.09,365.0,78.23,412.0
+Al-550,S02,0,550,post-hot-extrusion,not retained before 2022,26.46,229.0,38.48,1330.0,44.72,715.0,65.1,371.0,78.22,392.0
+Al-600,S03,0,600,post-hot-extrusion,not retained before 2022,26.31,217.0,38.47,1347.0,44.72,679.0,65.09,357.0,78.22,388.0
+A2-500,S04,2,500,post-hot-extrusion,not retained before 2022,26.55,305.0,38.48,1333.0,44.72,703.0,65.08,353.0,78.22,356.0
+A2-550,S05,2,550,post-hot-extrusion,not retained before 2022,26.55,294.0,38.47,1358.0,44.72,686.0,65.09,387.0,78.23,366.0
+A2-600,S06,2,600,post-hot-extrusion,not retained before 2022,26.6,324.0,38.47,1294.0,44.72,647.0,65.1,348.0,78.24,375.0
+A3-500,S07,3,500,post-hot-extrusion,not retained before 2022,26.49,350.0,38.47,1365.0,44.72,686.0,65.09,356.0,78.23,372.0
+A3-550,S08,3,550,post-hot-extrusion,not retained before 2022,26.59,374.0,38.48,1299.0,44.72,664.0,65.1,327.0,78.23,380.0
+A3-600,S09,3,600,post-hot-extrusion,not retained before 2022,26.44,366.0,38.47,1328.0,44.71,628.0,65.1,354.0,78.23,358.0
+A4-500,S10,4,500,post-hot-extrusion,not retained before 2022,26.55,407.0,38.48,1330.0,44.72,693.0,65.1,338.0,78.22,352.0
+A4-550,S11,4,550,post-hot-extrusion,not retained before 2022,26.63,407.0,38.48,1289.0,44.72,674.0,65.1,355.0,78.24,361.0
+A4-600,S12,4,600,post-hot-extrusion,not retained before 2022,26.54,396.0,38.47,1311.0,44.73,690.0,65.09,356.0,78.23,347.0
