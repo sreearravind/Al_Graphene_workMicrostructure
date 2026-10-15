@@ -1,0 +1,26 @@
+{
+  "pinned_main_source_sha": "1e03a978fbdaf6eecd8517707a86020291678af1",
+  "matrix_source_git_blob_sha": "bbea94803dee30d3af4c0b20c504d73c37a06ae2",
+  "info_source_git_blob_sha": "b600a82196210fd5a6999b518f717b793a4b2d80",
+  "source_matrix": "XRD_analysis/Combined_Matrix_Data_revised.csv",
+  "points_per_pattern": 6001,
+  "patterns": 12,
+  "grid_start": 20,
+  "grid_end": 80,
+  "angular_step": 0.01,
+  "no_missing_numbers": true,
+  "source_integer_counts": true,
+  "source_attribution": "User says received from collaborator; ORIGINAL NATIVE INSTRUMENT FILES NOT YET PROVIDED",
+  "metadata_inconsistencies": [
+    "Info.txt reports 40mA while v8.4 reports 20mA",
+    "Info.txt says flat pressed powder while manuscript discusses hot-extruded samples",
+    "Info.txt says Ar or vacuum to be supplied",
+    "Info.txt phase databases listed as alternatives",
+    "Info.txt refinement R-factors blank/ellipsis",
+    "Info.txt 0.01deg step x 1s implies 0.6deg/min, while 1.0deg/min declared",
+    "Earlier experiment record reported one 4wt% XRD scan vs supplied 12-condition matrix"
+  ],
+  "final_phase_identification_proven": false,
+  "no_fabrication_claim_or_forgery_inference_from_mismatch": true,
+  "no_quantitative_al4c3_detection_limit_estimated": true
+}
