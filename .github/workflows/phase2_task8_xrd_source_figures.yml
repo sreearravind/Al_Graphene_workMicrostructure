@@ -1,0 +1,52 @@
+name: Phase 2 Task 8 - Twelve Source XRD Panels
+
+on:
+  push:
+    branches: [audit/phase1-task1-optical-validation]
+    paths:
+      - 'Phase2_Task8_XRD_Manuscript_Integration/plot_all_original_xrd.py'
+      - '.github/workflows/phase2_task8_xrd_source_figures.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: phase2-task8-xrd-panels
+  cancel-in-progress: false
+
+jobs:
+  original-6001-point-xrd:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Check out isolated audit branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Retrieve collaborator XRD files from pinned main commit
+        uses: actions/checkout@v4
+        with:
+          ref: 1e03a978fbdaf6eecd8517707a86020291678af1
+          path: _xrd_main_source
+          persist-credentials: false
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install plotting libraries
+        run: python -m pip install 'numpy>=1.26,<3' 'matplotlib>=3.8,<4'
+      - name: Plot measured intensity exports without modifications
+        env:
+          MPLBACKEND: Agg
+        run: python Phase2_Task8_XRD_Manuscript_Integration/plot_all_original_xrd.py
+      - name: Commit only derived review figures and peak table
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add Phase2_Task8_XRD_Manuscript_Integration/output
+          if ! git diff --cached --quiet; then
+            git commit -m 'Record author-attributed twelve-pattern XRD plots and source peak table'
+            git pull --rebase origin audit/phase1-task1-optical-validation
+            git push origin HEAD:audit/phase1-task1-optical-validation
+          fi
