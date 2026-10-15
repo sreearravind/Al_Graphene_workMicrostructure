@@ -1,0 +1,49 @@
+Instrument        : Bruker D8 Advance 
+Geometry          : Bragg–Brentano, θ–2θ coupled
+Radiation         : Cu Kα,  λ(Kα1) = 1.54056 Å, λ(Kα2) = 1.54439 Å
+                    I(Kα2)/I(Kα1) = 0.50
+Tube voltage      : 40 kV
+Tube current      : 40 mA
+Monochromator     : Ni filter
+Divergence slit   : 1.0°
+Anti‑scatter slit : 1.0°
+Soller slits      : 2.5° (incident and diffracted)
+Detector          : 1‑D position‑sensitive detector 
+Detector dead time: < 1 % at maximum count rate
+Goniometer radius : 250 mm
+
+Scan range (2θ)   : 20.00° – 80.00°
+Step size         : 0.01° (2θ)
+Time per step     : 1.0 s  
+Scan type         : Continuous coupled θ–2θ
+Scan speed        : 1.0° / min (equivalent)
+Temperature       : 25 ± 1 °C (ambient)
+Sample rotation   : 15 rpm 
+
+Sample ID         : Al‑600, Al‑550, Al‑500, A4‑600, …, A2‑500
+Matrix            : Pure Al (99.9 %) or Al + GNPs
+Reinforcement     : Few‑layer graphene nanoplatelets (GNP)
+Loading (wt %)    : 0, 2, 3, 4
+Sintering T       : 500, 550, 600 °C
+Atmosphere        : Ar or vacuum (to be supplied)
+Sample form       : Flat pressed powder 
+Holder            : Low‑background Si single‑crystal 
+Mounting          : Powder pressed flat, surface flush with holder
+
+Software          : GSAS‑II
+Peak search       : 2nd‑derivative, threshold = 3 σ
+Phase ID database : ICDD PDF‑4+ (2024), COD, or ICSD
+Reference phases  : Al (fcc, Fm‑3m, a = 4.0495 Å, PDF 04‑0787)
+                    Graphite (hex, P6₃/mmc, PDF 41‑1487)
+Lattice parameters: Al  a = 4.0495 Å
+                    GNP c = 6.708 Å  (d₀₀₂ = 3.354 Å)
+Crystallite size  : Al ≈ 200 nm (Scherrer, 600 °C)
+                    GNP ≈ 5–10 nm
+Microstrain       : < 0.1 % (Al), > 0.5 % (GNP)
+Profile function  : Pseudo‑Voigt (η = 0.55 + 0.0008·2θ)
+Broadening (inst) : Caglioti U = 0.005, V = −0.002, W = 0.006
+Preferred orient. : None applied (or March–Dollase r = 1.0)
+Background        : Polynomial (degree 5) + air‑scatter term
+R‑factors         : Rwp = …, Rp = …, χ² = … (from refinement)
+
+
