@@ -1,0 +1,12 @@
+Original_Ref,New_Ref,Decision
+5,5,Kept; article number 485
+15,15,Kept; publication volume year 2025
+18,18,Kept; DOI same as old 35
+22,15,Removed duplicate of old 15
+25,24,Kept; DOI recovered; print metadata review
+30,29,Kept; original reference lacks authors
+34,33,Kept; corrected authors and pages 25-33
+35,18,Removed duplicate of old 18
+36,5,Removed duplicate of old 5
+37,34,Kept and renumbered
+38,35,Kept and renumbered
