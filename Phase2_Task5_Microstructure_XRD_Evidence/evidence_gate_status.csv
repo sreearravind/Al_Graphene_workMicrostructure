@@ -1,0 +1,10 @@
+Item,Classification,Status,Evidence,Next_Decision
+Original_400x_BMP_TIFF,Image_identity,PASS,"36/36 verified decoded RGB identity with S10-S12 crosswalk",Keep_original_archives
+Twelve_condition_Figure3,Figure_preparation,DRAFT,"One F1 field per processing condition; uniform display; no micrometre scale",Await_400x_ruler
+Scale_microstructure_tif,Calibration_evidence,INSUFFICIENT,"Annotated grayscale 100um image has no verified link to colour 400x source fields",Check_source_instrument
+Old_grain_Figure4,Publication_claim,WITHDRAWN,"Unvalidated segmentation and image-label mismatch",Removed_from_Working_v8_3
+New_XRD_Figure4,Phase_evidence,PROVISIONAL,"Only one 4wt percent plotted spectrum; native point file and temperature ID unknown",Retrieve_original_XRD
+Hardness_Test_settings,Methods,UNVERIFIED,"Nine archived values per sample, missing indenter and loading/dwell",Request_original_machine_log
+Tensile_Test_settings,Methods,UNVERIFIED,"ASTM E8 indicated, no strain rate or gauge log",Request_original_UTM_log
+Tribometer,Methods,UNVERIFIED,"Archived S12 COF=0.125",Request_native_time_series
+Literature,References,PENDING,"Duplicates 5/36 15/22 18/35",Primary_source_checks

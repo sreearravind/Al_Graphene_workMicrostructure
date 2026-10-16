@@ -1,0 +1,21 @@
+{
+  "reference_sha256": "b16409f2d06ea63469060850dcc5939b6c5bd5f74cd205508e1832b6e34ad3ec",
+  "source_bar_pixels": 148,
+  "source_bar_um": 50,
+  "computed_um_per_pixel": 0.33783783783783783,
+  "scale_bar_um_on_draft": 100,
+  "bar_native_pixel_length": 296,
+  "bar_resized_pixel_length": 166,
+  "original_source_pairs_verified": 36,
+  "conditions_shown": 12,
+  "images_selected_uniformly": "F1 for each condition",
+  "original_400x_dimensions": [
+    1600,
+    1200
+  ],
+  "researcher_approved_transfer": true,
+  "instrument_log_independently_verified": false,
+  "calibration_statement_for_manuscript": "Microscope 400\u00d7 micrographs were calibrated from an unmodified 50 \u00b5m scale reference spanning 148 pixels; 0.338 \u00b5m/pixel, researcher-confirmed common acquisition conditions.",
+  "warning_100x_relation": "0.473um/px prior at 100x vs 0.337838um/px at 400x; factor ~1.40, not nominal factor 4; 100x calibration must remain separate",
+  "no_physical_grain_identification": true
+}

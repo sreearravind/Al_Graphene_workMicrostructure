@@ -1,0 +1,4 @@
+Working_Sample,Field,Active_Manual_ROIs,Overlapping_Pairs_All,Substantive_Overlapping_Pairs,Overlapping_Pixels_Unique,Comparison_Status,Expert_Grain_Identity_Signed_Off
+S06,1,9,0,0,0,SCORED_EXPERT_SIGNOFF_PENDING,False
+S06,2,16,3,3,18303,HOLD_REVIEW_BOUNDARIES,False
+S06,3,15,2,2,11079,HOLD_REVIEW_BOUNDARIES,False

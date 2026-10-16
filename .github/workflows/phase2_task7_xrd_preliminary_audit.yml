@@ -1,0 +1,52 @@
+name: Phase 2 Task 7 - Source-Pinned Twelve-Pattern XRD Review
+
+on:
+  push:
+    branches: [audit/phase1-task1-optical-validation]
+    paths:
+      - 'Phase2_Task7_XRD_Evidence_Audit/audit_collaborator_xrd.py'
+      - '.github/workflows/phase2_task7_xrd_preliminary_audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: phase2-task7-xrd-audit
+  cancel-in-progress: false
+
+jobs:
+  exploratory-xrd-verification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out evidence audit branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Check out original collaborator supplied main files at exact commit
+        uses: actions/checkout@v4
+        with:
+          ref: 1e03a978fbdaf6eecd8517707a86020291678af1
+          path: _xrd_main_source
+          persist-credentials: false
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install numeric science libraries
+        run: python -m pip install 'numpy>=1.26,<3' 'scipy>=1.11,<2' 'matplotlib>=3.8,<4'
+      - name: Check all twelve patterns and create exploratory diagnostics
+        env:
+          MPLBACKEND: Agg
+        run: python Phase2_Task7_XRD_Evidence_Audit/audit_collaborator_xrd.py
+      - name: Commit ONLY derived audit outputs to audit branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add Phase2_Task7_XRD_Evidence_Audit/output
+          if ! git diff --cached --quiet; then
+            git commit -m 'Record preliminary, provenance-gated twelve-pattern XRD diagnostics'
+            git pull --rebase origin audit/phase1-task1-optical-validation
+            git push origin HEAD:audit/phase1-task1-optical-validation
+          fi

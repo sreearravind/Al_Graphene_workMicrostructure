@@ -1,0 +1,9 @@
+Field_ID,Original_BMP_Folder,Original_BMP_Path,Historical_TIFF_Label,Priority,Why_Selected,Manual_Boundary_Visibility_0_1_2,Field_Decision_PENDING_RESOLVABLE_UNRESOLVABLE,Traced_Grains,Image_Sectors_Represented,Ambiguity_or_Excluded_Feature_Notes,Expert_Initials,Review_Date,ROI_ZIP_Submitted_Yes_No
+S02_F1,"0-550 - Copy","Optical miscrostructure_Figures_BMP file/0-550 - Copy/100x1.bmp",S2,HIGH,"10 retained automated objects; suspected merged regions",,PENDING,,,,,,No
+S03_F3,"0-600 - Copy","Optical miscrostructure_Figures_BMP file/0-600 - Copy/100x3.bmp",S3,HIGH,"12 retained objects; unusually large ECD",,PENDING,,,,,,No
+S06_F1,"2-600 - Copy","Optical miscrostructure_Figures_BMP file/2-600 - Copy/100x1.bmp",S6,REFERENCE,"329 retained objects, compare with S06_F2",,PENDING,,,,,,No
+S06_F2,"2-600 - Copy","Optical miscrostructure_Figures_BMP file/2-600 - Copy/100x2.bmp",S6,HIGH,"23 retained objects vs 329 and 344 other fields",,PENDING,,,,,,No
+S09_F2,"3-600 - Copy","Optical miscrostructure_Figures_BMP file/3-600 - Copy/100x2.bmp",S9,HIGH,"17 retained regions; largest object ~14% image",,PENDING,,,,,,No
+S10_F1,"4-500 - Copy","Optical miscrostructure_Figures_BMP file/4-500 - Copy/100x1.bmp",S11,LABEL,"Original BMP = working S10; historical TIFF folder S11",,PENDING,,,,,,No
+S11_F1,"4-550 - Copy","Optical miscrostructure_Figures_BMP file/4-550 - Copy/100x1.bmp",S12,LABEL,"Original BMP = working S11; historical TIFF folder S12",,PENDING,,,,,,No
+S12_F1,"4.600 - Copy","Optical miscrostructure_Figures_BMP file/4.600 - Copy/100x1.bmp",S10,LABEL,"Original BMP = working S12; historical TIFF folder S10",,PENDING,,,,,,No
